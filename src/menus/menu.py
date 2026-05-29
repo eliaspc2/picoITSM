@@ -1,8 +1,8 @@
 import os
 
 class Menu:
-    def limpar_ecra():
-    os.system("cls" if os.name == "nt" else "clear")
+    def limpar_ecra(self):
+        os.system("cls" if os.name == "nt" else "clear")
 
     def __init__(self):
         self.mostrar_menu()
@@ -35,7 +35,7 @@ class Menu:
             else:
                 print("\nOpção inválida. Por favor, tente novamente.")
     
-// Menus específicos para cada entidade
+# Menus específicos para cada entidade
 
     def desenhar_menu_tecnicos(self):
         print("\n=== Menu Técnicos ===\n"

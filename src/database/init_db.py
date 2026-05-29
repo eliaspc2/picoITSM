@@ -1,6 +1,6 @@
-from db_connection import ligar_bd
+from db_connection import DatabaseConnection
 
-conn = ligar_bd()
+conn = DatabaseConnection.ligar_bd()
 cursor = conn.cursor()
 
 cursor.execute("""
@@ -13,6 +13,6 @@ CREATE TABLE IF NOT EXISTS tecnicos (
 """)
 
 conn.commit()
-conn.close()
+DatabaseConnection.fechar_bd(conn)
 
 print("Base de dados criada com sucesso.")
