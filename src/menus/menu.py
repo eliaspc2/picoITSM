@@ -1,11 +1,10 @@
 import os
+import subprocess
 
 class Menu:
     def limpar_ecra(self):
-        os.system("cls" if os.name == "nt" else "clear")
-
-    def __init__(self):
-        self.mostrar_menu()
+        comando = "cls" if os.name == "nt" else "clear"
+        subprocess.run(comando, shell=True, check=False)
 
     def desenhar_menu(self):
         print("\n=== picoITSM ===\n" \
