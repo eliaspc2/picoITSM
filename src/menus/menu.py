@@ -9,9 +9,11 @@ class Menu:
         self.utilizador_atual = utilizador_atual
         self.utilizador_repository = UtilizadorRepository()
 
-    def limpar_ecra(self):
+    @staticmethod
+    def limpar_ecra():
         comando = "cls" if os.name == "nt" else "clear"
         subprocess.run(comando, shell=True, check=False)
+
     def desenhar_menu(self):
         print("\n=== picoITSM ===\n"
             "1. Técnicos\n"

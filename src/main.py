@@ -3,11 +3,11 @@ from time import sleep
 
 from database.init_db import criar_tabelas
 from menus.menu import Menu
-from models.utilizador import Utilizador
 from repositories.utilizador_repository import UtilizadorRepository
 
 
 def login():
+    Menu.limpar_ecra()
     utilizador_repository = UtilizadorRepository()
 
     while True:
@@ -28,22 +28,8 @@ def login():
 
 def main():
     criar_tabelas()
-
-    utilizador_repository = UtilizadorRepository()
-
-    """
-    utilizador_admin = Utilizador(
-        "admin",
-        "admin123",
-        "ADMIN"
-    )
-    """
-
-    utilizador_repository.criar(utilizador_admin)
-
-    utilizador_atual = login()
-
-    menu = Menu(utilizador_atual)
+    
+    menu = Menu(login())
     menu.mostrar_menu()
 
 
