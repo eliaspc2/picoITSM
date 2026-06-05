@@ -5,8 +5,9 @@ from models.utilizador import Utilizador
 from repositories.utilizador_repository import UtilizadorRepository
 
 class Menu:
-    def __init__(self, utilizador_atual):
+    def __init__(self, utilizador_atual, dados):
         self.utilizador_atual = utilizador_atual
+        self.dados = dados
         self.utilizador_repository = UtilizadorRepository()
 
     @staticmethod

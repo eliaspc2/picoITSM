@@ -4,6 +4,7 @@ from time import sleep
 from database.init_db import criar_tabelas
 from menus.menu import Menu
 from repositories.utilizador_repository import UtilizadorRepository
+from services.memory_cache import MemoryCache
 
 
 def login():
@@ -28,8 +29,15 @@ def login():
 
 def main():
     criar_tabelas()
-    
-    menu = Menu(login())
+
+    cache = MemoryCache()
+    cache.carregar()
+
+    cache.resumo()
+
+    dados = cache.obter_dados()
+
+    menu = Menu(login(), dados)
     menu.mostrar_menu()
 
 
