@@ -1,67 +1,64 @@
 from models.ticket import Ticket
-
 from repositories.ticket_repository import TicketRepository
-from repositories.tecnico_repository import TecnicoRepository
 
 
 class TicketService:
 
-    def __init__(self):
+    def __init__(self, dados):
+        self.dados = dados
         self.ticket_repository = TicketRepository()
-        self.tecnico_repository = TecnicoRepository()
 
-    def carregar_dados_memoria(self):
-        tecnicos = self.tecnico_repository.listar()
-        tickets = self.ticket_repository.listar()
+    def tecnico_tem_competencia(self, id_tecnico, id_competencia):
+        for relacao in self.dados["tecnico_competencia"]:
+            if relacao[0] == id_tecnico and relacao[1] == id_competencia:
+                return True
 
-        return tecnicos, tickets
+        return False
 
-    def calcular_carga_trabalho(self, id_tecnico):
-        tickets = self.ticket_repository.listar()
+    def calcular_carga_tecnico(self, id_tecnico):
         carga = 0
 
-        for ticket in tickets:
-            tecnico_nome = ticket[7]
+        for ticket in self.dados["tickets"]:
+            id_tecnico_ticket = ticket[7]
+            estado = ticket[4]
 
-            if tecnico_nome is not None:
+            if id_tecnico_ticket == id_tecnico and estado != "FECHADO":
                 carga += 1
 
         return carga
 
-    def procurar_tecnicos_disponiveis(self):
-        tecnicos = self.tecnico_repository.listar()
-        tecnicos_disponiveis = []
+    def escolher_tecnico(self, id_competencia):
+        candidatos = []
 
-        for tecnico in tecnicos:
+        for tecnico in self.dados["tecnicos"]:
+            id_tecnico = tecnico[0]
             disponivel = tecnico[3]
             ativo = tecnico[4]
 
             if disponivel == 1 and ativo == 1:
-                tecnicos_disponiveis.append(tecnico)
+                if self.tecnico_tem_competencia(id_tecnico, id_competencia):
+                    carga = self.calcular_carga_tecnico(id_tecnico)
 
-        return tecnicos_disponiveis
+                    candidatos.append({
+                        "id_tecnico": id_tecnico,
+                        "nome": tecnico[1],
+                        "carga": carga
+                    })
 
-    def escolher_tecnico_automaticamente(self):
-        tecnicos_disponiveis = self.procurar_tecnicos_disponiveis()
-
-        if not tecnicos_disponiveis:
+        if not candidatos:
             return None
 
-        tecnico_escolhido = tecnicos_disponiveis[0]
+        candidatos.sort(key=lambda tecnico: tecnico["carga"])
 
-        for tecnico in tecnicos_disponiveis:
-            if tecnico[0] < tecnico_escolhido[0]:
-                tecnico_escolhido = tecnico
-
-        return tecnico_escolhido
+        return candidatos[0]
 
     def criar_ticket_com_atribuicao(self, titulo, descricao, prioridade, id_cliente, id_competencia):
-        tecnico = self.escolher_tecnico_automaticamente()
+        tecnico = self.escolher_tecnico(id_competencia)
 
         id_tecnico = None
 
         if tecnico:
-            id_tecnico = tecnico[0]
+            id_tecnico = tecnico["id_tecnico"]
 
         ticket = Ticket(
             titulo,
@@ -73,8 +70,6 @@ class TicketService:
         )
 
         self.ticket_repository.criar(ticket)
+        self.dados["tickets"] = self.ticket_repository.listar()
 
-        if tecnico:
-            print(f"Ticket atribuído automaticamente ao técnico: {tecnico[1]}")
-        else:
-            print("Ticket criado sem técnico atribuído.")
+        return tecnico

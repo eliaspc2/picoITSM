@@ -49,6 +49,9 @@ class TicketRepository:
                 tickets.descricao,
                 tickets.prioridade,
                 tickets.estado,
+                tickets.id_cliente,
+                tickets.id_competencia,
+                tickets.id_tecnico,
                 clientes.nome,
                 competencias.nome,
                 tecnicos.nome

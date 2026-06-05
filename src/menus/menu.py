@@ -3,12 +3,14 @@ import subprocess
 from getpass import getpass
 from models.utilizador import Utilizador
 from repositories.utilizador_repository import UtilizadorRepository
+from services.ticket_service import TicketService
 
 class Menu:
     def __init__(self, utilizador_atual, dados):
         self.utilizador_atual = utilizador_atual
         self.dados = dados
         self.utilizador_repository = UtilizadorRepository()
+        self.ticket_service = TicketService(dados)
 
     @staticmethod
     def limpar_ecra():
@@ -123,9 +125,9 @@ class Menu:
             escolha = input("Escolha uma opção: ")
 
             if escolha == "1":
-                print("\nVocê escolheu Listar Tickets.")
+                self.listar_tickets()
             elif escolha == "2":
-                print("\nVocê escolheu Adicionar Ticket.")
+                self.adicionar_ticket()
             elif escolha == "3":
                 print("\nVocê escolheu Editar Ticket.")
             elif escolha == "4":
@@ -135,6 +137,67 @@ class Menu:
                 break
             else:
                 print("\nOpção inválida. Por favor, tente novamente.")
+
+    def listar_tickets(self):
+        self.limpar_ecra()
+
+        print("\n=== Lista de Tickets ===\n")
+
+        if not self.dados["tickets"]:
+            print("Não existem tickets registados.")
+            input("\nPrima Enter para continuar...")
+            return
+
+        for ticket in self.dados["tickets"]:
+            tecnico = ticket[10] if ticket[10] else "Sem técnico"
+            print(f"{ticket[0]} - {ticket[1]} | {ticket[3]} | {ticket[4]} | {tecnico}")
+
+        input("\nPrima Enter para continuar...")
+
+    def adicionar_ticket(self):
+        self.limpar_ecra()
+
+        print("\n=== Adicionar Ticket ===\n")
+
+        titulo = input("Título: ")
+        descricao = input("Descrição: ")
+        prioridade = input("Prioridade (Baixa/Média/Alta): ")
+
+        print("\nClientes:")
+        for cliente in self.dados["clientes"]:
+            print(f"{cliente[0]} - {cliente[1]}")
+
+        id_cliente = self.ler_numero("\nID do cliente: ")
+
+        print("\nCompetências:")
+        for competencia in self.dados["competencias"]:
+            print(f"{competencia[0]} - {competencia[1]}")
+
+        id_competencia = self.ler_numero("\nID da competência: ")
+
+        tecnico = self.ticket_service.criar_ticket_com_atribuicao(
+            titulo,
+            descricao,
+            prioridade,
+            id_cliente,
+            id_competencia
+        )
+
+        if tecnico:
+            print(f"\nTicket atribuído automaticamente ao técnico: {tecnico['nome']}")
+        else:
+            print("\nTicket criado sem técnico atribuído.")
+
+        input("\nPrima Enter para continuar...")
+
+    def ler_numero(self, mensagem):
+        while True:
+            valor = input(mensagem)
+
+            if valor.isdigit():
+                return int(valor)
+
+            print("Valor inválido. Introduza um número.")
 
     def desenhar_menu_utilizadores(self):
         print("\n=== Menu Utilizadores ===\n"

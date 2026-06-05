@@ -3,6 +3,7 @@ from repositories.tecnico_repository import TecnicoRepository
 from repositories.cliente_repository import ClienteRepository
 from repositories.competencia_repository import CompetenciaRepository
 from repositories.ticket_repository import TicketRepository
+from database.db_connection import DatabaseConnection
 
 
 class MemoryCache:
@@ -19,6 +20,7 @@ class MemoryCache:
             "tecnicos": [],
             "clientes": [],
             "competencias": [],
+            "tecnico_competencia": [],
             "tickets": []
         }
 
@@ -27,7 +29,22 @@ class MemoryCache:
         self.dados["tecnicos"] = self.tecnico_repository.listar()
         self.dados["clientes"] = self.cliente_repository.listar()
         self.dados["competencias"] = self.competencia_repository.listar()
+        self.dados["tecnico_competencia"] = self.carregar_tecnico_competencia()
         self.dados["tickets"] = self.ticket_repository.listar()
+
+    def carregar_tecnico_competencia(self):
+        conn = DatabaseConnection.ligar_bd()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id_tecnico, id_competencia
+            FROM tecnico_competencia
+        """)
+
+        relacoes = cursor.fetchall()
+        DatabaseConnection.fechar_bd(conn)
+
+        return relacoes
 
     def limpar(self):
         for chave in self.dados:
