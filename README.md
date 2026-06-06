@@ -67,48 +67,174 @@ picoITSM/
 └── requirements.txt
 ```
 
-# Roadmap do Projeto
+# Estado por Entrega
 
 ## Entrega 1 - Análise do problema e requisitos
 
-* Definição do stack tecnológico
-* Documento de requisitos funcionais e não-funcionais
-* Diagrama Entidade-Relacionamento
-* Diagrama de Classes
-* Inicialização do repositório Git
+Na Entrega 1 ficou preparada a base documental e organizacional do projeto.
+
+Ficou pronto:
+
+* Definição do stack tecnológico em `docs/01_stack_tecnologico.md`
+* Documento de requisitos funcionais e não-funcionais em `docs/02_requisitos.md`
+* Diagrama Entidade-Relacionamento em `docs/03_diagrama_entidade_relacionamento.md`
+* Diagrama de Classes em `docs/04_diagrama_classes.md`
+* Repositório Git inicializado
+* Estrutura inicial de pastas do projeto
+* README inicial com descrição, objetivo, tecnologias e roadmap
+
+Estado da entrega: concluída.
 
 ## Entrega 2 - Modelação e desenho do sistema
 
+Na Entrega 2 ficou implementada a base técnica de persistência e modelação do domínio.
+
+Ficou pronto:
+
 * Criação da base de dados SQLite
-* Implementação das entidades
-* Operações CRUD básicas
-* Dados de teste (seeding)
+* Script de criação das tabelas em `src/database/init_db.py`
+* Ligação à base de dados em `src/database/db_connection.py`
+* Script de dados de teste em `src/database/seed_db.py`
+* Modelos de domínio:
+  * `Utilizador`
+  * `Tecnico`
+  * `Cliente`
+  * `Competencia`
+  * `Ticket`
+* Repositórios com operações CRUD básicas:
+  * `UtilizadorRepository`
+  * `TecnicoRepository`
+  * `ClienteRepository`
+  * `CompetenciaRepository`
+  * `TicketRepository`
+* Persistência de dados em SQLite
+* Criação da tabela de relação `tecnico_competencia`
+* Inserção de dados iniciais para testar técnicos, clientes, competências, utilizadores e tickets
+
+Estado da entrega: concluída.
 
 ## Entrega 3 - Infraestrutura e base técnica
 
-* Estruturas de dados em memória
-* Implementação do algoritmo principal
-* Organização por camadas
-* Comunicação entre módulos
+Na Entrega 3 ficou implementada a infraestrutura em memória, a comunicação entre camadas e o algoritmo principal de atribuição automática.
+
+Ficou pronto:
+
+* Classe `MemoryCache` em `src/services/memory_cache.py`
+* Estruturas de dados em memória carregadas a partir da BD
+* Estrutura única `dados` partilhada entre módulos
+* Carregamento da tabela `tecnico_competencia`
+* Serviço `TicketService` em `src/services/ticket_service.py`
+* Algoritmo para escolher técnico elegível
+* Matching entre competência do ticket e competências do técnico
+* Cálculo de carga de trabalho por técnico
+* Exclusão de tickets com estado `FECHADO` no cálculo da carga
+* Utilização de Heap/Priority Queue com `heapq`
+* Integração inicial entre `main.py`, `Menu`, `MemoryCache`, `TicketService`, repositórios e SQLite
+* Criação de tickets através do menu com atribuição automática
+* Recarregamento automático da cache após criar ticket
+* Testes unitários do algoritmo em `src/tests/test_ticket_service.py`
+
+### Arquitetura da Entrega 3
+
+As estruturas de dados em memória são carregadas a partir da base de dados SQLite através da classe `MemoryCache`.
+
+Estruturas em memória:
+
+* utilizadores
+* tecnicos
+* clientes
+* competencias
+* tecnico_competencia
+* tickets
+
+Fluxo entre camadas:
+
+```text
+Menu
+↓
+Service
+↓
+MemoryCache
+↓
+Repository
+↓
+SQLite
+```
+
+O algoritmo de atribuição automática utiliza uma Heap (Priority Queue), implementada através do módulo `heapq`, para selecionar o técnico elegível com menor carga de trabalho.
+
+O fluxo da atribuição automática é:
+
+```text
+BD
+↓
+Memória
+↓
+Algoritmo
+↓
+Atualização
+```
+
+Depois de criar um ticket com `ticket_service.criar_ticket_com_atribuicao(...)`, a cache é recarregada com `cache.recarregar()`, mantendo os dados em memória sincronizados com a base de dados.
+
+Testes implementados:
+
+* técnico com competência é escolhido
+* técnico com menor carga é escolhido
+* sem candidatos retorna `None`
+
+Comando para executar os testes:
+
+```bash
+python -m unittest discover -s src/tests
+```
+
+Estado da entrega: praticamente concluída.
 
 ## Entrega 4 - Implementação funcional principal
 
+Entrega ainda em desenvolvimento.
+
+Previsto:
+
 * Funcionalidades principais completas
-* Menus por consola
-* Persistência de dados funcional
+* Menus por consola para todas as entidades
+* Criação, edição, listagem e remoção através da interface
+* Persistência de dados funcional em todas as operações
 * Validação e tratamento de erros
 
 ## Entrega 5 - Segurança, testes e fiabilidade
 
-* Autenticação simples
-* Tratamento de exceções
+Entrega ainda em desenvolvimento.
+
+Já existe:
+
+* Autenticação simples de utilizadores
+* Hash de passwords em `src/utils/security.py`
+* Controlo básico de opções por perfil no menu
+* Testes unitários iniciais do algoritmo da Entrega 3
+
+Previsto:
+
+* Reforço de autorização
+* Tratamento de exceções mais completo
 * Logs básicos
-* Testes unitários
+* Mais testes unitários
 * Verificação de vulnerabilidades
 
 ## Entrega 6 - Otimização, documentação e defesa
 
+Entrega ainda em desenvolvimento.
+
+Já existe:
+
+* Documentação inicial em `README.md`
+* Documentação de requisitos e diagramas em `docs/`
+* Proposta do projeto no repositório
+
+Previsto:
+
 * Otimizações finais
-* Documentação técnica
-* Manual de utilização
+* Documentação técnica completa
+* Manual de instalação e utilização
 * Preparação da apresentação final

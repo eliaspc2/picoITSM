@@ -6,8 +6,9 @@ from repositories.ticket_repository import TicketRepository
 
 class TicketService:
 
-    def __init__(self, dados):
+    def __init__(self, dados, cache=None):
         self.dados = dados
+        self.cache = cache
         self.ticket_repository = TicketRepository()
 
     def tecnico_tem_competencia(self, id_tecnico, id_competencia):
@@ -79,6 +80,11 @@ class TicketService:
         )
 
         self.ticket_repository.criar(ticket)
-        self.dados["tickets"] = self.ticket_repository.listar()
+
+        if self.cache:
+            self.cache.recarregar()
+            self.dados = self.cache.obter_dados()
+        else:
+            self.dados["tickets"] = self.ticket_repository.listar()
 
         return tecnico

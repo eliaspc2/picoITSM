@@ -37,7 +37,7 @@ def main():
 
     dados = cache.obter_dados()
 
-    menu = Menu(login(), dados)
+    menu = Menu(login(), dados, cache)
     menu.mostrar_menu()
 
 

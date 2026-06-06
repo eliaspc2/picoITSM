@@ -6,11 +6,11 @@ from repositories.utilizador_repository import UtilizadorRepository
 from services.ticket_service import TicketService
 
 class Menu:
-    def __init__(self, utilizador_atual, dados):
+    def __init__(self, utilizador_atual, dados, cache=None):
         self.utilizador_atual = utilizador_atual
         self.dados = dados
         self.utilizador_repository = UtilizadorRepository()
-        self.ticket_service = TicketService(dados)
+        self.ticket_service = TicketService(dados, cache)
 
     @staticmethod
     def limpar_ecra():
