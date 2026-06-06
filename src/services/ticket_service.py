@@ -1,3 +1,5 @@
+import heapq
+
 from models.ticket import Ticket
 from repositories.ticket_repository import TicketRepository
 
@@ -28,7 +30,7 @@ class TicketService:
         return carga
 
     def escolher_tecnico(self, id_competencia):
-        candidatos = []
+        fila_prioridade = []
 
         for tecnico in self.dados["tecnicos"]:
             id_tecnico = tecnico[0]
@@ -39,18 +41,25 @@ class TicketService:
                 if self.tecnico_tem_competencia(id_tecnico, id_competencia):
                     carga = self.calcular_carga_tecnico(id_tecnico)
 
-                    candidatos.append({
-                        "id_tecnico": id_tecnico,
-                        "nome": tecnico[1],
-                        "carga": carga
-                    })
+                    heapq.heappush(
+                        fila_prioridade,
+                        (
+                            carga,
+                            id_tecnico,
+                            tecnico[1]
+                        )
+                    )
 
-        if not candidatos:
+        if not fila_prioridade:
             return None
 
-        candidatos.sort(key=lambda tecnico: tecnico["carga"])
+        carga, id_tecnico, nome = heapq.heappop(fila_prioridade)
 
-        return candidatos[0]
+        return {
+            "id_tecnico": id_tecnico,
+            "nome": nome,
+            "carga": carga
+        }
 
     def criar_ticket_com_atribuicao(self, titulo, descricao, prioridade, id_cliente, id_competencia):
         tecnico = self.escolher_tecnico(id_competencia)
