@@ -189,7 +189,27 @@ Comando para executar os testes:
 python -m unittest discover -s src/tests
 ```
 
-Estado da entrega: praticamente concluída.
+### Como testar a Entrega 3
+
+Para preparar a base de dados com dados de teste:
+
+```bash
+python src/database/seed_db.py
+```
+
+Para executar os testes do algoritmo:
+
+```bash
+python -m unittest discover -s src/tests
+```
+
+Para iniciar a aplicação e testar os menus:
+
+```bash
+python src/main.py
+```
+
+Estado da entrega: concluída.
 
 ## Entrega 4 - Implementação funcional principal
 
