@@ -11,6 +11,8 @@ from repositories.tecnico_repository import TecnicoRepository
 from repositories.ticket_repository import TicketRepository
 from repositories.utilizador_repository import UtilizadorRepository
 from services.ticket_service import TicketService
+from utils.validators import Validators
+
 
 class Menu:
     def __init__(self, utilizador_atual, dados, cache=None):
@@ -204,10 +206,10 @@ class Menu:
 
         print("\n=== Adicionar Técnico ===\n")
 
-        nome = input("Nome: ")
-        email = input("Email: ")
-        disponivel = self.ler_numero("Disponível (1=Sim / 0=Não): ")
-        ativo = self.ler_numero("Ativo (1=Sim / 0=Não): ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
+        email = self.ler_email("Email: ")
+        disponivel = self.ler_booleano("Disponível (1=Sim / 0=Não): ")
+        ativo = self.ler_booleano("Ativo (1=Sim / 0=Não): ")
 
         tecnico = Tecnico(nome, email, disponivel, ativo)
         self.tecnico_repository.criar(tecnico)
@@ -221,11 +223,11 @@ class Menu:
 
         print("\n=== Editar Técnico ===\n")
 
-        id_tecnico = self.ler_numero("ID do técnico: ")
-        nome = input("Nome: ")
-        email = input("Email: ")
-        disponivel = self.ler_numero("Disponível (1=Sim / 0=Não): ")
-        ativo = self.ler_numero("Ativo (1=Sim / 0=Não): ")
+        id_tecnico = self.ler_id_existente("tecnicos", "ID do técnico: ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
+        email = self.ler_email("Email: ")
+        disponivel = self.ler_booleano("Disponível (1=Sim / 0=Não): ")
+        ativo = self.ler_booleano("Ativo (1=Sim / 0=Não): ")
 
         self.tecnico_repository.atualizar(id_tecnico, nome, email, disponivel, ativo)
         self.recarregar_dados()
@@ -238,7 +240,7 @@ class Menu:
 
         print("\n=== Excluir Técnico ===\n")
 
-        id_tecnico = self.ler_numero("ID do técnico: ")
+        id_tecnico = self.ler_id_existente("tecnicos", "ID do técnico: ")
         self.tecnico_repository.remover(id_tecnico)
         self.recarregar_dados()
 
@@ -264,8 +266,8 @@ class Menu:
 
         print("\n=== Adicionar Cliente ===\n")
 
-        nome = input("Nome: ")
-        email = input("Email: ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
+        email = self.ler_email("Email: ")
         telefone = input("Telefone: ")
 
         cliente = Cliente(nome, email, telefone)
@@ -280,9 +282,9 @@ class Menu:
 
         print("\n=== Editar Cliente ===\n")
 
-        id_cliente = self.ler_numero("ID do cliente: ")
-        nome = input("Nome: ")
-        email = input("Email: ")
+        id_cliente = self.ler_id_existente("clientes", "ID do cliente: ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
+        email = self.ler_email("Email: ")
         telefone = input("Telefone: ")
 
         self.cliente_repository.atualizar(id_cliente, nome, email, telefone)
@@ -296,7 +298,7 @@ class Menu:
 
         print("\n=== Excluir Cliente ===\n")
 
-        id_cliente = self.ler_numero("ID do cliente: ")
+        id_cliente = self.ler_id_existente("clientes", "ID do cliente: ")
         self.cliente_repository.remover(id_cliente)
         self.recarregar_dados()
 
@@ -322,7 +324,7 @@ class Menu:
 
         print("\n=== Adicionar Competência ===\n")
 
-        nome = input("Nome: ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
         descricao = input("Descrição: ")
 
         competencia = Competencia(nome, descricao)
@@ -337,8 +339,8 @@ class Menu:
 
         print("\n=== Editar Competência ===\n")
 
-        id_competencia = self.ler_numero("ID da competência: ")
-        nome = input("Nome: ")
+        id_competencia = self.ler_id_existente("competencias", "ID da competência: ")
+        nome = self.ler_texto_obrigatorio("Nome: ")
         descricao = input("Descrição: ")
 
         self.competencia_repository.atualizar(id_competencia, nome, descricao)
@@ -352,7 +354,7 @@ class Menu:
 
         print("\n=== Excluir Competência ===\n")
 
-        id_competencia = self.ler_numero("ID da competência: ")
+        id_competencia = self.ler_id_existente("competencias", "ID da competência: ")
         self.competencia_repository.remover(id_competencia)
         self.recarregar_dados()
 
@@ -379,21 +381,21 @@ class Menu:
 
         print("\n=== Adicionar Ticket ===\n")
 
-        titulo = input("Título: ")
-        descricao = input("Descrição: ")
-        prioridade = input("Prioridade (Baixa/Média/Alta): ")
+        titulo = self.ler_texto_obrigatorio("Título: ")
+        descricao = self.ler_texto_obrigatorio("Descrição: ")
+        prioridade = self.ler_prioridade("Prioridade (BAIXA/MEDIA/ALTA): ")
 
         print("\nClientes:")
         for cliente in self.dados["clientes"]:
             print(f"{cliente[0]} - {cliente[1]}")
 
-        id_cliente = self.ler_numero("\nID do cliente: ")
+        id_cliente = self.ler_id_existente("clientes", "\nID do cliente: ")
 
         print("\nCompetências:")
         for competencia in self.dados["competencias"]:
             print(f"{competencia[0]} - {competencia[1]}")
 
-        id_competencia = self.ler_numero("\nID da competência: ")
+        id_competencia = self.ler_id_existente("competencias", "\nID da competência: ")
 
         tecnico = self.ticket_service.criar_ticket_com_atribuicao(
             titulo,
@@ -416,32 +418,29 @@ class Menu:
 
         print("\n=== Editar Ticket ===\n")
 
-        id_ticket = self.ler_numero("ID do ticket: ")
-        titulo = input("Título: ")
-        descricao = input("Descrição: ")
-        prioridade = input("Prioridade (Baixa/Média/Alta): ")
-        estado = input("Estado (ABERTO/EM_CURSO/FECHADO): ").upper()
+        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
+        titulo = self.ler_texto_obrigatorio("Título: ")
+        descricao = self.ler_texto_obrigatorio("Descrição: ")
+        prioridade = self.ler_prioridade("Prioridade (BAIXA/MEDIA/ALTA): ")
+        estado = self.ler_estado_ticket("Estado (ABERTO/EM_CURSO/FECHADO): ")
 
         print("\nClientes:")
         for cliente in self.dados["clientes"]:
             print(f"{cliente[0]} - {cliente[1]}")
 
-        id_cliente = self.ler_numero("\nID do cliente: ")
+        id_cliente = self.ler_id_existente("clientes", "\nID do cliente: ")
 
         print("\nCompetências:")
         for competencia in self.dados["competencias"]:
             print(f"{competencia[0]} - {competencia[1]}")
 
-        id_competencia = self.ler_numero("\nID da competência: ")
+        id_competencia = self.ler_id_existente("competencias", "\nID da competência: ")
 
         print("\nTécnicos:")
         for tecnico in self.dados["tecnicos"]:
             print(f"{tecnico[0]} - {tecnico[1]}")
 
-        id_tecnico = self.ler_numero("\nID do técnico (0 para sem técnico): ")
-
-        if id_tecnico == 0:
-            id_tecnico = None
+        id_tecnico = self.ler_id_tecnico_opcional("\nID do técnico (0 para sem técnico): ")
 
         self.ticket_repository.atualizar(
             id_ticket,
@@ -463,7 +462,7 @@ class Menu:
 
         print("\n=== Excluir Ticket ===\n")
 
-        id_ticket = self.ler_numero("ID do ticket: ")
+        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
         self.ticket_repository.remover(id_ticket)
         self.recarregar_dados()
 
@@ -477,6 +476,97 @@ class Menu:
                 return int(valor)
 
             print("Valor inválido. Introduza um número.")
+
+    def ler_numero_positivo(self, mensagem):
+        while True:
+            valor = input(mensagem)
+
+            if Validators.inteiro_positivo(valor):
+                return int(valor)
+
+            print("Valor inválido. Introduza um número positivo.")
+
+    def ler_booleano(self, mensagem):
+        while True:
+            valor = input(mensagem)
+
+            if Validators.booleano_numero(valor):
+                return int(valor)
+
+            print("Valor inválido. Use 1 para Sim ou 0 para Não.")
+
+    def ler_texto_obrigatorio(self, mensagem):
+        while True:
+            valor = input(mensagem)
+
+            if Validators.nao_vazio(valor):
+                return valor.strip()
+
+            print("Valor obrigatório. Não pode ficar vazio.")
+
+    def ler_email(self, mensagem):
+        while True:
+            valor = input(mensagem)
+
+            if Validators.email(valor):
+                return valor.strip()
+
+            print("Email inválido.")
+
+    def ler_prioridade(self, mensagem):
+        while True:
+            valor = input(mensagem).upper()
+
+            if Validators.prioridade(valor):
+                return valor
+
+            print("Prioridade inválida. Use BAIXA, MEDIA ou ALTA.")
+
+    def ler_estado_ticket(self, mensagem):
+        while True:
+            valor = input(mensagem).upper()
+
+            if Validators.estado_ticket(valor):
+                return valor
+
+            print("Estado inválido. Use ABERTO, EM_CURSO ou FECHADO.")
+
+    def ler_perfil_utilizador(self, mensagem):
+        while True:
+            valor = input(mensagem).upper()
+
+            if valor in ["ADMIN", "TECNICO"]:
+                return valor
+
+            print("Perfil inválido. Use ADMIN ou TECNICO.")
+
+    def existe_id(self, chave, id_registo):
+        for registo in self.dados[chave]:
+            if registo[0] == id_registo:
+                return True
+
+        return False
+
+    def ler_id_existente(self, chave, mensagem):
+        while True:
+            id_registo = self.ler_numero_positivo(mensagem)
+
+            if self.existe_id(chave, id_registo):
+                return id_registo
+
+            print("ID não encontrado.")
+
+    def ler_id_tecnico_opcional(self, mensagem):
+        while True:
+            id_tecnico = self.ler_numero(mensagem)
+
+            if id_tecnico == 0:
+                return None
+
+            if self.existe_id("tecnicos", id_tecnico):
+                return id_tecnico
+
+            print("ID de técnico não encontrado.")
 
     def desenhar_menu_utilizadores(self):
         print("\n=== Menu Utilizadores ===\n"
@@ -521,8 +611,13 @@ class Menu:
 
         print(f"\n=== Criar Utilizador {perfil} ===\n")
 
-        username = input("Username: ")
+        username = self.ler_texto_obrigatorio("Username: ")
         password = getpass("Password: ")
+
+        if not Validators.nao_vazio(password):
+            print("\nPassword obrigatória.")
+            input("\nPrima Enter para continuar...")
+            return
 
         utilizador = Utilizador(username, password, perfil)
         self.utilizador_repository.criar(utilizador)
@@ -552,15 +647,10 @@ class Menu:
 
         print("\n=== Editar Utilizador ===\n")
 
-        id_utilizador = self.ler_numero("ID do utilizador: ")
-        username = input("Username: ")
-        perfil = input("Perfil (ADMIN/TECNICO): ").upper()
-        ativo = self.ler_numero("Ativo (1=Sim / 0=Não): ")
-
-        if perfil not in ["ADMIN", "TECNICO"]:
-            print("\nPerfil inválido.")
-            input("\nPrima Enter para continuar...")
-            return
+        id_utilizador = self.ler_id_existente("utilizadores", "ID do utilizador: ")
+        username = self.ler_texto_obrigatorio("Username: ")
+        perfil = self.ler_perfil_utilizador("Perfil (ADMIN/TECNICO): ")
+        ativo = self.ler_booleano("Ativo (1=Sim / 0=Não): ")
 
         self.utilizador_repository.atualizar(id_utilizador, username, perfil, ativo)
         self.recarregar_dados()
@@ -573,7 +663,7 @@ class Menu:
 
         print("\n=== Excluir Utilizador ===\n")
 
-        id_utilizador = self.ler_numero("ID do utilizador: ")
+        id_utilizador = self.ler_id_existente("utilizadores", "ID do utilizador: ")
         self.utilizador_repository.remover(id_utilizador)
         self.recarregar_dados()
 
