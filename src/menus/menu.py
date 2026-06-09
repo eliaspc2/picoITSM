@@ -38,11 +38,11 @@ class Menu:
 
     def desenhar_menu(self):
         print("\n=== picoITSM ===\n"
-            "1. Técnicos\n"
-            "2. Clientes\n"
-            "3. Tickets")
+            "1. Clientes\n"
+            "2. Tickets")
 
         if self.eh_admin():
+            print("3. Técnicos")
             print("4. Competências")
             print("5. Utilizadores")
 
@@ -55,14 +55,14 @@ class Menu:
             escolha = input("Escolha uma opção: ")
 
             if escolha == "1":
-                print("\nVocê escolheu Técnicos.")
-                self.menu_tecnicos()
-            elif escolha == "2":
                 print("\nVocê escolheu Clientes.")
                 self.menu_clientes()
-            elif escolha == "3":
+            elif escolha == "2":
                 print("\nVocê escolheu Tickets.")
                 self.menu_tickets()
+            elif escolha == "3" and self.eh_admin():
+                print("\nVocê escolheu Técnicos.")
+                self.menu_tecnicos()
             elif escolha == "4" and self.eh_admin():
                 print("\nVocê escolheu Competências.")
                 self.menu_competencias()

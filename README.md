@@ -34,6 +34,18 @@ O objetivo académico do projeto é cumprir os requisitos da UFCD e obter aprova
 
 Aplicação totalmente desenvolvida em linha de comandos (CLI).
 
+## Utilizadores de teste
+
+Depois de executar o seed da base de dados, existem dois utilizadores principais para teste:
+
+```text
+admin - admin123
+user  - user123
+```
+
+O utilizador `admin` tem perfil `ADMIN`.
+O utilizador `user` tem perfil `TECNICO`.
+
 ## Funcionalidades previstas
 
 * Criar técnicos

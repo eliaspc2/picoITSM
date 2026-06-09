@@ -82,11 +82,7 @@ def seed():
     )
 
     utilizador_repository.criar(
-        Utilizador("joao", "joao123", "TECNICO")
-    )
-
-    utilizador_repository.criar(
-        Utilizador("maria", "maria123", "TECNICO")
+        Utilizador("user", "user123", "TECNICO")
     )
 
     tecnico_repository.criar(
