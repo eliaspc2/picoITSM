@@ -7,6 +7,7 @@ from models.tecnico import Tecnico
 from models.utilizador import Utilizador
 from repositories.cliente_repository import ClienteRepository
 from repositories.competencia_repository import CompetenciaRepository
+from repositories.tecnico_competencia_repository import TecnicoCompetenciaRepository
 from repositories.tecnico_repository import TecnicoRepository
 from repositories.ticket_repository import TicketRepository
 from repositories.utilizador_repository import UtilizadorRepository
@@ -22,6 +23,7 @@ class Menu:
         self.tecnico_repository = TecnicoRepository()
         self.cliente_repository = ClienteRepository()
         self.competencia_repository = CompetenciaRepository()
+        self.tecnico_competencia_repository = TecnicoCompetenciaRepository()
         self.ticket_repository = TicketRepository()
         self.utilizador_repository = UtilizadorRepository()
         self.ticket_service = TicketService(dados, cache)
@@ -31,14 +33,17 @@ class Menu:
         comando = "cls" if os.name == "nt" else "clear"
         subprocess.run(comando, shell=True, check=False)
 
+    def eh_admin(self):
+        return self.utilizador_atual[2] == "ADMIN"
+
     def desenhar_menu(self):
         print("\n=== picoITSM ===\n"
             "1. Técnicos\n"
             "2. Clientes\n"
-            "3. Tickets\n"
-            "4. Competências")
+            "3. Tickets")
 
-        if self.utilizador_atual[2] == "ADMIN":
+        if self.eh_admin():
+            print("4. Competências")
             print("5. Utilizadores")
 
         print("0. Sair\n")
@@ -58,10 +63,10 @@ class Menu:
             elif escolha == "3":
                 print("\nVocê escolheu Tickets.")
                 self.menu_tickets()
-            elif escolha == "4":
+            elif escolha == "4" and self.eh_admin():
                 print("\nVocê escolheu Competências.")
                 self.menu_competencias()
-            elif escolha == "5" and self.utilizador_atual[2] == "ADMIN":
+            elif escolha == "5" and self.eh_admin():
                 print("\nVocê escolheu Utilizadores.")
                 self.menu_utilizadores()
             elif escolha == "0":
@@ -74,11 +79,15 @@ class Menu:
 
     def desenhar_menu_tecnicos(self):
         print("\n=== Menu Técnicos ===\n"
-        "1. Listar Técnicos\n" \
-        "2. Adicionar Técnico\n" \
-        "3. Editar Técnico\n" \
-        "4. Excluir Técnico\n" \
-        "0. Voltar ao Menu Principal\n")
+        "1. Listar Técnicos")
+
+        if self.eh_admin():
+            print("2. Adicionar Técnico\n"
+            "3. Editar Técnico\n"
+            "4. Excluir Técnico\n"
+            "5. Gerir Competências do Técnico")
+
+        print("0. Voltar ao Menu Principal\n")
 
     def desenhar_menu_clientes(self):
         print("\n=== Menu Clientes ===\n"
@@ -112,12 +121,14 @@ class Menu:
 
             if escolha == "1":
                 self.listar_tecnicos()
-            elif escolha == "2":
+            elif escolha == "2" and self.eh_admin():
                 self.adicionar_tecnico()
-            elif escolha == "3":
+            elif escolha == "3" and self.eh_admin():
                 self.editar_tecnico()
-            elif escolha == "4":
+            elif escolha == "4" and self.eh_admin():
                 self.excluir_tecnico()
+            elif escolha == "5" and self.eh_admin():
+                self.menu_competencias_tecnico()
             elif escolha == "0":
                 print("\nVoltando ao Menu Principal.\n")
                 break
@@ -213,6 +224,7 @@ class Menu:
 
         tecnico = Tecnico(nome, email, disponivel, ativo)
         self.tecnico_repository.criar(tecnico)
+        self.criar_utilizador_padrao_tecnico(email)
         self.recarregar_dados()
 
         input("\nPrima Enter para continuar...")
@@ -242,6 +254,99 @@ class Menu:
 
         id_tecnico = self.ler_id_existente("tecnicos", "ID do técnico: ")
         self.tecnico_repository.remover(id_tecnico)
+        self.recarregar_dados()
+
+        input("\nPrima Enter para continuar...")
+
+    def menu_competencias_tecnico(self):
+        while True:
+            self.limpar_ecra()
+            print("\n=== Competências do Técnico ===\n"
+            "1. Listar Competências do Técnico\n"
+            "2. Associar Competência\n"
+            "3. Remover Competência\n"
+            "0. Voltar\n")
+
+            escolha = input("Escolha uma opção: ")
+
+            if escolha == "1":
+                self.listar_competencias_tecnico()
+            elif escolha == "2":
+                self.associar_competencia_tecnico()
+            elif escolha == "3":
+                self.remover_competencia_tecnico()
+            elif escolha == "0":
+                break
+            else:
+                print("\nOpção inválida. Por favor, tente novamente.")
+
+    def listar_competencias_tecnico(self):
+        self.limpar_ecra()
+
+        print("\n=== Listar Competências do Técnico ===\n")
+        self.mostrar_tecnicos()
+
+        id_tecnico = self.ler_id_existente("tecnicos", "\nID do técnico: ")
+        nome_tecnico = self.obter_nome_por_id("tecnicos", id_tecnico)
+
+        print(f"\nCompetências de {nome_tecnico}:\n")
+
+        encontrou = False
+
+        for relacao in self.dados["tecnico_competencia"]:
+            if relacao[0] == id_tecnico:
+                encontrou = True
+                nome_competencia = self.obter_nome_por_id("competencias", relacao[1])
+                print(f"{relacao[1]} - {nome_competencia}")
+
+        if not encontrou:
+            print("Este técnico ainda não tem competências associadas.")
+
+        input("\nPrima Enter para continuar...")
+
+    def associar_competencia_tecnico(self):
+        self.limpar_ecra()
+
+        print("\n=== Associar Competência ao Técnico ===\n")
+        self.mostrar_tecnicos()
+
+        id_tecnico = self.ler_id_existente("tecnicos", "\nID do técnico: ")
+
+        print("\nCompetências:")
+        self.mostrar_competencias()
+
+        id_competencia = self.ler_id_existente("competencias", "\nID da competência: ")
+
+        self.tecnico_competencia_repository.associar(id_tecnico, id_competencia)
+        self.recarregar_dados()
+
+        input("\nPrima Enter para continuar...")
+
+    def remover_competencia_tecnico(self):
+        self.limpar_ecra()
+
+        print("\n=== Remover Competência do Técnico ===\n")
+        self.mostrar_tecnicos()
+
+        id_tecnico = self.ler_id_existente("tecnicos", "\nID do técnico: ")
+
+        print("\nCompetências associadas:")
+        encontrou = False
+
+        for relacao in self.dados["tecnico_competencia"]:
+            if relacao[0] == id_tecnico:
+                encontrou = True
+                nome_competencia = self.obter_nome_por_id("competencias", relacao[1])
+                print(f"{relacao[1]} - {nome_competencia}")
+
+        if not encontrou:
+            print("Este técnico não tem competências associadas.")
+            input("\nPrima Enter para continuar...")
+            return
+
+        id_competencia = self.ler_id_existente("competencias", "\nID da competência a remover: ")
+
+        self.tecnico_competencia_repository.remover(id_tecnico, id_competencia)
         self.recarregar_dados()
 
         input("\nPrima Enter para continuar...")
@@ -567,6 +672,32 @@ class Menu:
                 return id_tecnico
 
             print("ID de técnico não encontrado.")
+
+    def mostrar_tecnicos(self):
+        for tecnico in self.dados["tecnicos"]:
+            print(f"{tecnico[0]} - {tecnico[1]}")
+
+    def mostrar_competencias(self):
+        for competencia in self.dados["competencias"]:
+            print(f"{competencia[0]} - {competencia[1]}")
+
+    def obter_nome_por_id(self, chave, id_registo):
+        for registo in self.dados[chave]:
+            if registo[0] == id_registo:
+                return registo[1]
+
+        return "Não encontrado"
+
+    def criar_utilizador_padrao_tecnico(self, email):
+        username = email.split("@")[0].lower()
+        password = "tecnico123"
+
+        utilizador = Utilizador(username, password, "TECNICO")
+        self.utilizador_repository.criar(utilizador)
+
+        print("\nUtilizador de login criado para o técnico.")
+        print(f"Username: {username}")
+        print(f"Password inicial: {password}")
 
     def desenhar_menu_utilizadores(self):
         print("\n=== Menu Utilizadores ===\n"

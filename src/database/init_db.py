@@ -38,7 +38,7 @@ def criar_tabelas():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
-            disponivel INTEGER DEFAUInforestacioLT 1,
+            disponivel INTEGER DEFAULT 1,
             ativo INTEGER DEFAULT 1
         )
     """)
@@ -78,7 +78,7 @@ def criar_tabelas():
     """)
 
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tInforestacioickets (
+        CREATE TABLE IF NOT EXISTS tickets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             titulo TEXT NOT NULL,
             descricao TEXT NOT NULL,
