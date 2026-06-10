@@ -225,15 +225,72 @@ Estado da entrega: concluída.
 
 ## Entrega 4 - Implementação funcional principal
 
-Entrega ainda em desenvolvimento.
+Na Entrega 4 ficou implementada a parte funcional principal da aplicação através da interface por consola.
 
-Previsto:
+Ficou pronto:
 
-* Funcionalidades principais completas
-* Menus por consola para todas as entidades
-* Criação, edição, listagem e remoção através da interface
-* Persistência de dados funcional em todas as operações
-* Validação e tratamento de erros
+* Menu principal por perfil de utilizador
+* Menu de clientes com criação, listagem, edição e remoção
+* Menu de tickets com criação, listagem, edição e remoção
+* Alteração de estado de tickets
+* Fecho de tickets
+* Menu de técnicos restrito a administradores
+* Criação, listagem, edição e remoção de técnicos
+* Criação automática de utilizador da aplicação ao criar técnico
+* Menu de competências restrito a administradores
+* Criação, listagem, edição e remoção de competências
+* Associação de competências a técnicos
+* Remoção de competências associadas a técnicos
+* Menu de utilizadores restrito a administradores
+* Criação de utilizadores `ADMIN` e `TECNICO`
+* Listagem, edição e remoção de utilizadores
+* Validação de campos obrigatórios
+* Validação de email
+* Validação de prioridade e estado de tickets
+* Validação de IDs existentes antes de operações
+* Bloqueio de remoções que quebrariam relações existentes
+* Persistência funcional em SQLite
+* Recarregamento da cache após alterações
+
+Estado da entrega: concluída.
+
+### API interna da aplicação
+
+Como o projeto é uma aplicação CLI, não foi implementada uma API HTTP. A API funcional do projeto é a camada interna de classes, organizada por responsabilidades.
+
+Camadas principais:
+
+* `models`: representam as entidades do domínio.
+* `repositories`: fazem o acesso à base de dados SQLite.
+* `services`: concentram regras de negócio e algoritmos.
+* `menus`: disponibilizam a interface operacional por consola.
+* `database`: cria e liga a base de dados.
+* `utils`: contém funções auxiliares, como validações e segurança.
+
+Fluxo funcional:
+
+```text
+Menu
+↓
+Service
+↓
+Repository
+↓
+SQLite
+```
+
+Principais classes da API interna:
+
+* `MemoryCache`: carrega e mantém dados da BD em memória.
+* `TicketService`: atribui tickets automaticamente a técnicos elegíveis.
+* `ClienteRepository`: cria, lista, atualiza e remove clientes.
+* `TecnicoRepository`: cria, lista, atualiza e remove técnicos.
+* `CompetenciaRepository`: cria, lista, atualiza e remove competências.
+* `TecnicoCompetenciaRepository`: associa e remove competências dos técnicos.
+* `TicketRepository`: cria, lista, atualiza e remove tickets.
+* `UtilizadorRepository`: gere utilizadores e autenticação.
+
+Esta organização permite que o menu use métodos bem definidos sem aceder diretamente à base de dados.
 
 ## Entrega 5 - Segurança, testes e fiabilidade
 
