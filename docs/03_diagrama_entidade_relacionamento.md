@@ -1,93 +1,126 @@
 # Diagrama Entidade-Relacionamento
 
-## Entidades Principais
+## Modelo de Dados Completo
 
-O projeto picoITSM terá uma base de dados simples, adequada a uma aplicação por linha de comandos.
+O diagrama seguinte representa o modelo normalizado previsto para o âmbito
+completo do picoITSM. As entidades `ATIVOS`, `DISPONIBILIDADES` e a associação
+`TICKET_ATIVO` estão modeladas para cumprir o registo de infraestrutura e a
+disponibilidade horária do enunciado, mas ainda não foram implementadas na base
+de dados atual.
 
-As entidades principais serão:
+```mermaid
+erDiagram
+    UTILIZADORES {
+        int id PK
+        string username UK
+        string password_hash
+        string perfil
+        boolean ativo
+    }
 
-- Técnicos
-- Clientes
-- Competências
-- Tickets
-- Técnico_Competência
+    TECNICOS {
+        int id PK
+        string nome
+        string email UK
+        boolean disponivel
+        boolean ativo
+    }
 
-## Entidade: tecnicos
+    CLIENTES {
+        int id PK
+        string nome
+        string email UK
+        string telefone
+    }
 
-Representa os técnicos responsáveis pelo tratamento dos tickets.
+    COMPETENCIAS {
+        int id PK
+        string nome UK
+        string descricao
+    }
 
-| Campo | Tipo | Descrição |
+    TECNICO_COMPETENCIA {
+        int id_tecnico PK, FK
+        int id_competencia PK, FK
+    }
+
+    DISPONIBILIDADES {
+        int id PK
+        int id_tecnico FK
+        int dia_semana
+        string hora_inicio
+        string hora_fim
+    }
+
+    ATIVOS {
+        int id PK
+        string nome
+        string tipo
+        string fabricante
+        string modelo
+        string numero_serie UK
+        string estado
+        int id_cliente FK
+    }
+
+    TICKETS {
+        int id PK
+        string titulo
+        string descricao
+        string prioridade
+        string estado
+        int id_cliente FK
+        int id_competencia FK
+        int id_tecnico FK
+    }
+
+    TICKET_ATIVO {
+        int id_ticket PK, FK
+        int id_ativo PK, FK
+    }
+
+    TECNICOS ||--o{ TECNICO_COMPETENCIA : possui
+    COMPETENCIAS ||--o{ TECNICO_COMPETENCIA : classifica
+    TECNICOS ||--o{ DISPONIBILIDADES : define
+    TECNICOS o|--o{ TICKETS : recebe
+    CLIENTES ||--o{ TICKETS : reporta
+    COMPETENCIAS ||--o{ TICKETS : exige
+    CLIENTES ||--o{ ATIVOS : possui
+    TICKETS ||--o{ TICKET_ATIVO : referencia
+    ATIVOS ||--o{ TICKET_ATIVO : associado
+```
+
+## Entidades Implementadas
+
+| Entidade | Finalidade | Estado |
 |---|---|---|
-| id_tecnico | INTEGER | Identificador único do técnico |
-| nome | TEXT | Nome do técnico |
-| email | TEXT | Email do técnico |
-| disponivel | INTEGER | Indica se o técnico está disponível |
-| ativo | INTEGER | Indica se o técnico está ativo no sistema |
+| `utilizadores` | Autenticação e perfil de acesso. | Implementada |
+| `tecnicos` | Técnicos que podem receber tickets. | Implementada |
+| `clientes` | Entidades que reportam pedidos de suporte. | Implementada |
+| `competencias` | Áreas técnicas necessárias para resolver tickets. | Implementada |
+| `tecnico_competencia` | Relação muitos-para-muitos entre técnicos e competências. | Implementada |
+| `tickets` | Incidentes e pedidos de suporte. | Implementada |
+| `disponibilidades` | Horários em que cada técnico pode receber trabalho. | Por implementar |
+| `ativos` | Inventário de hardware e software dos clientes. | Por implementar |
+| `ticket_ativo` | Relação entre tickets e ativos afetados. | Por implementar |
 
-## Entidade: clientes
+## Normalização
 
-Representa os clientes que reportam incidentes ou pedidos de suporte.
+O modelo segue a terceira forma normal:
 
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id_cliente | INTEGER | Identificador único do cliente |
-| nome | TEXT | Nome do cliente |
-| email | TEXT | Email do cliente |
-| telefone | TEXT | Contacto telefónico do cliente |
+1. Cada campo contém um valor atómico e cada tabela possui uma chave primária.
+2. As relações muitos-para-muitos são separadas em tabelas associativas.
+3. Dados de clientes, técnicos e competências não são repetidos nos tickets;
+   são referenciados através de chaves estrangeiras.
+4. A disponibilidade horária é separada do técnico porque um técnico pode ter
+   vários períodos de disponibilidade.
+5. A associação entre tickets e ativos é separada para permitir que um ticket
+   envolva vários ativos e que um ativo apareça em vários tickets.
 
-## Entidade: competencias
+## Restrições Principais
 
-Representa as áreas técnicas necessárias para resolver tickets.
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id_competencia | INTEGER | Identificador único da competência |
-| nome | TEXT | Nome da competência |
-| descricao | TEXT | Descrição da competência |
-
-## Entidade: tecnico_competencia
-
-Tabela intermédia que associa técnicos às suas competências.
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id_tecnico | INTEGER | Identificador do técnico |
-| id_competencia | INTEGER | Identificador da competência |
-
-## Entidade: tickets
-
-Representa os pedidos de suporte ou incidentes registados no sistema.
-
-| Campo | Tipo | Descrição |
-|---|---|---|
-| id_ticket | INTEGER | Identificador único do ticket |
-| titulo | TEXT | Título do ticket |
-| descricao | TEXT | Descrição do problema |
-| prioridade | TEXT | Prioridade do ticket |
-| estado | TEXT | Estado atual do ticket |
-| id_cliente | INTEGER | Cliente associado ao ticket |
-| id_competencia | INTEGER | Competência necessária para resolver o ticket |
-| id_tecnico | INTEGER | Técnico atribuído ao ticket |
-
-## Relações
-
-- Um cliente pode criar vários tickets.
-- Um ticket pertence a um único cliente.
-- Um ticket pode ter uma competência associada.
-- Uma competência pode estar associada a vários tickets.
-- Um técnico pode ter várias competências.
-- Uma competência pode pertencer a vários técnicos.
-- Um técnico pode ter vários tickets atribuídos.
-- Um ticket pode ter um técnico atribuído.
-
-## Representação Simplificada
-
-```text
-clientes 1 ─── N tickets
-
-tecnicos 1 ─── N tickets
-
-competencias 1 ─── N tickets
-
-tecnicos N ─── N competencias
-        através de tecnico_competencia
+- `username`, emails, nomes de competência e números de série são únicos.
+- Um ticket tem obrigatoriamente cliente e competência.
+- A atribuição de técnico é opcional quando não existe candidato elegível.
+- As tabelas associativas utilizam chaves primárias compostas para impedir
+  associações duplicadas.

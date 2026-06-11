@@ -1,145 +1,145 @@
 # Diagrama de Classes
 
-## Objetivo
+## Lógica de Domínio e Arquitetura
 
-Este diagrama representa a estrutura principal de classes do projeto picoITSM.
+O diagrama representa as classes existentes na versão atual. Ao contrário da
+versão inicial deste documento, não inclui métodos ou classes que não estejam
+presentes no código.
 
-O sistema será desenvolvido em Python e terá uma organização simples, adequada a uma aplicação por linha de comandos.
+```mermaid
+classDiagram
+    class Utilizador {
+        +username: str
+        +password: str
+        +perfil: str
+        +ativo: int
+    }
 
-## Classes Principais
+    class Tecnico {
+        +nome: str
+        +email: str
+        +disponivel: int
+        +ativo: int
+    }
 
-As classes principais serão:
+    class Cliente {
+        +nome: str
+        +email: str
+        +telefone: str
+    }
 
-- Tecnico
-- Cliente
-- Competencia
-- Ticket
-- GestorTickets
+    class Competencia {
+        +nome: str
+        +descricao: str
+    }
 
-## Classe: Tecnico
+    class Ticket {
+        +titulo: str
+        +descricao: str
+        +prioridade: str
+        +estado: str
+        +id_cliente: int
+        +id_competencia: int
+        +id_tecnico: int
+    }
 
-Representa um técnico responsável pela resolução de tickets.
+    class Menu {
+        +mostrar_menu()
+        +menu_clientes()
+        +menu_tecnicos()
+        +menu_competencias()
+        +menu_tickets()
+        +menu_utilizadores()
+    }
 
-### Atributos
+    class TicketService {
+        +tecnico_tem_competencia(id_tecnico, id_competencia)
+        +calcular_carga_tecnico(id_tecnico)
+        +escolher_tecnico(id_competencia)
+        +criar_ticket_com_atribuicao(...)
+    }
 
-| Atributo | Tipo | Descrição |
-|---|---|---|
-| id_tecnico | int | Identificador único do técnico |
-| nome | str | Nome do técnico |
-| email | str | Email do técnico |
-| disponivel | bool | Indica se o técnico está disponível |
-| ativo | bool | Indica se o técnico está ativo |
-| competencias | list | Lista de competências do técnico |
+    class MemoryCache {
+        +carregar()
+        +recarregar()
+        +obter_dados()
+        +obter(chave)
+    }
 
-### Métodos
+    class DatabaseConnection {
+        +ligar_bd()
+        +fechar_bd(conn)
+    }
 
-| Método | Descrição |
-|---|---|
-| adicionar_competencia() | Adiciona uma competência ao técnico |
-| remover_competencia() | Remove uma competência do técnico |
-| esta_disponivel() | Verifica se o técnico está disponível |
+    class UtilizadorRepository
+    class TecnicoRepository
+    class ClienteRepository
+    class CompetenciaRepository
+    class TecnicoCompetenciaRepository
+    class TicketRepository
 
-## Classe: Cliente
+    Menu --> TicketService : cria tickets
+    Menu --> MemoryCache : atualiza dados
+    Menu --> UtilizadorRepository
+    Menu --> TecnicoRepository
+    Menu --> ClienteRepository
+    Menu --> CompetenciaRepository
+    Menu --> TecnicoCompetenciaRepository
+    Menu --> TicketRepository
+    TicketService --> Ticket : instancia
+    TicketService --> TicketRepository : persiste
+    TicketService --> MemoryCache : sincroniza
+    MemoryCache --> UtilizadorRepository
+    MemoryCache --> TecnicoRepository
+    MemoryCache --> ClienteRepository
+    MemoryCache --> CompetenciaRepository
+    MemoryCache --> TicketRepository
+    UtilizadorRepository --> DatabaseConnection
+    TecnicoRepository --> DatabaseConnection
+    ClienteRepository --> DatabaseConnection
+    CompetenciaRepository --> DatabaseConnection
+    TecnicoCompetenciaRepository --> DatabaseConnection
+    TicketRepository --> DatabaseConnection
+```
 
-Representa um cliente que cria tickets.
+## Entidades Previstas no Âmbito Completo
 
-### Atributos
+As classes seguintes resultam dos requisitos do enunciado e deverão ser
+adicionadas quando o inventário e a disponibilidade horária forem implementados:
 
-| Atributo | Tipo | Descrição |
-|---|---|---|
-| id_cliente | int | Identificador único do cliente |
-| nome | str | Nome do cliente |
-| email | str | Email do cliente |
-| telefone | str | Contacto telefónico do cliente |
+```mermaid
+classDiagram
+    class Ativo {
+        +nome: str
+        +tipo: str
+        +fabricante: str
+        +modelo: str
+        +numero_serie: str
+        +estado: str
+        +id_cliente: int
+    }
 
-### Métodos
+    class Disponibilidade {
+        +id_tecnico: int
+        +dia_semana: int
+        +hora_inicio: time
+        +hora_fim: time
+    }
 
-| Método | Descrição |
-|---|---|
-| atualizar_contacto() | Atualiza os dados de contacto do cliente |
+    class Ticket
+    class Cliente
+    class Tecnico
 
-## Classe: Competencia
+    Cliente "1" --> "0..*" Ativo : possui
+    Ticket "0..*" --> "0..*" Ativo : afeta
+    Tecnico "1" --> "0..*" Disponibilidade : define
+```
 
-Representa uma área técnica necessária para resolver tickets.
+## Responsabilidades
 
-### Atributos
-
-| Atributo | Tipo | Descrição |
-|---|---|---|
-| id_competencia | int | Identificador único da competência |
-| nome | str | Nome da competência |
-| descricao | str | Descrição da competência |
-
-### Métodos
-
-| Método | Descrição |
-|---|---|
-| atualizar_descricao() | Atualiza a descrição da competência |
-
-## Classe: Ticket
-
-Representa um incidente ou pedido de suporte.
-
-### Atributos
-
-| Atributo | Tipo | Descrição |
-|---|---|---|
-| id_ticket | int | Identificador único do ticket |
-| titulo | str | Título do ticket |
-| descricao | str | Descrição do problema |
-| prioridade | str | Prioridade do ticket |
-| estado | str | Estado atual do ticket |
-| cliente | Cliente | Cliente associado ao ticket |
-| competencia | Competencia | Competência necessária |
-| tecnico | Tecnico | Técnico atribuído |
-
-### Métodos
-
-| Método | Descrição |
-|---|---|
-| atualizar_estado() | Atualiza o estado do ticket |
-| atribuir_tecnico() | Associa um técnico ao ticket |
-
-## Classe: GestorTickets
-
-Classe responsável pela lógica principal de gestão e atribuição de tickets.
-
-### Atributos
-
-| Atributo | Tipo | Descrição |
-|---|---|---|
-| tickets | list | Lista de tickets |
-| tecnicos | list | Lista de técnicos |
-
-### Métodos
-
-| Método | Descrição |
-|---|---|
-| criar_ticket() | Cria um novo ticket |
-| listar_tickets() | Lista os tickets existentes |
-| procurar_tecnicos_compativeis() | Procura técnicos com competência adequada |
-| calcular_carga_trabalho() | Calcula a carga atual de cada técnico |
-| atribuir_ticket_automaticamente() | Atribui o ticket ao técnico mais adequado |
-
-## Relações Entre Classes
-
-- Um Cliente pode ter vários Tickets.
-- Um Ticket pertence a um Cliente.
-- Um Ticket pode ter uma Competencia necessária.
-- Um Tecnico pode ter várias Competencias.
-- Um Ticket pode ser atribuído a um Tecnico.
-- GestorTickets coordena a criação, consulta e atribuição de Tickets.
-
-## Representação Simplificada
-
-```text
-Cliente 1 ─── N Ticket
-
-Tecnico 1 ─── N Ticket
-
-Tecnico N ─── N Competencia
-
-Ticket 1 ─── 1 Competencia
-
-GestorTickets ─── gere ─── Ticket
-GestorTickets ─── consulta ─── Tecnico
+- As entidades transportam os dados do domínio.
+- O `Menu` gere a interação e valida os dados introduzidos.
+- O `TicketService` contém o algoritmo de atribuição automática.
+- A `MemoryCache` mantém em memória os dados carregados da base de dados.
+- Os repositórios isolam as operações SQL.
+- A `DatabaseConnection` centraliza a abertura e o fecho das ligações SQLite.

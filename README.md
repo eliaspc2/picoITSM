@@ -91,11 +91,21 @@ Ficou pronto:
 * Documento de requisitos funcionais e não-funcionais em `docs/02_requisitos.md`
 * Diagrama Entidade-Relacionamento em `docs/03_diagrama_entidade_relacionamento.md`
 * Diagrama de Classes em `docs/04_diagrama_classes.md`
+* Documentação do repositório e scaffold em `docs/05_repositorio_e_scaffold.md`
+* Guia do código, objetos públicos e ficheiros em `docs/06_guia_codigo_e_objetos.md`
 * Repositório Git inicializado
+* Repositório alojado no GitHub
 * Estrutura inicial de pastas do projeto
 * README inicial com descrição, objetivo, tecnologias e roadmap
+* Matriz de requisitos com identificação, prioridade e estado de implementação
+* Diagramas Mermaid atualizados e coerentes com o código
+* Modelação das funcionalidades completas previstas no enunciado
 
-Estado da entrega: concluída.
+Estado da entrega: concluída a 100%.
+
+Nota: a análise identifica o inventário de ativos e a disponibilidade horária
+como requisitos do âmbito completo. Estas funcionalidades estão corretamente
+modeladas, mas a sua implementação pertence às entregas técnicas posteriores.
 
 ## Entrega 2 - Modelação e desenho do sistema
 
