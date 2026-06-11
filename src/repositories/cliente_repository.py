@@ -1,4 +1,5 @@
 from database.db_connection import DatabaseConnection
+from utils.logger import Logger
 
 
 class ClienteRepository:
@@ -19,6 +20,11 @@ class ClienteRepository:
 
             conn.commit()
             if cursor.rowcount:
+                Logger.registar(
+                    "CRIAR",
+                    "clientes",
+                    f"id={cursor.lastrowid}, nome={cliente.nome}, email={cliente.email}"
+                )
                 print("Cliente criado com sucesso.")
             else:
                 print("Cliente já existe.")
@@ -55,6 +61,12 @@ class ClienteRepository:
             """, (nome, email, telefone, id_cliente))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "ATUALIZAR",
+                    "clientes",
+                    f"id={id_cliente}, nome={nome}, email={email}, telefone={telefone}"
+                )
             print("Cliente atualizado com sucesso.")
 
         except Exception as erro:
@@ -74,6 +86,12 @@ class ClienteRepository:
             """, (id_cliente,))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "REMOVER",
+                    "clientes",
+                    f"id={id_cliente}"
+                )
             print("Cliente removido com sucesso.")
 
         except Exception as erro:

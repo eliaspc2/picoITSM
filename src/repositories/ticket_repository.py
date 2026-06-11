@@ -1,4 +1,5 @@
 from database.db_connection import DatabaseConnection
+from utils.logger import Logger
 
 
 class TicketRepository:
@@ -30,6 +31,16 @@ class TicketRepository:
             ))
 
             conn.commit()
+            Logger.registar(
+                "CRIAR",
+                "tickets",
+                (
+                    f"id={cursor.lastrowid}, titulo={ticket.titulo}, "
+                    f"prioridade={ticket.prioridade}, estado={ticket.estado}, "
+                    f"id_cliente={ticket.id_cliente}, id_competencia={ticket.id_competencia}, "
+                    f"id_tecnico={ticket.id_tecnico}"
+                )
+            )
             print("Ticket criado com sucesso.")
 
         except Exception as erro:
@@ -93,6 +104,16 @@ class TicketRepository:
             ))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "ATUALIZAR",
+                    "tickets",
+                    (
+                        f"id={id_ticket}, titulo={titulo}, prioridade={prioridade}, "
+                        f"estado={estado}, id_cliente={id_cliente}, "
+                        f"id_competencia={id_competencia}, id_tecnico={id_tecnico}"
+                    )
+                )
             print("Ticket atualizado com sucesso.")
 
         except Exception as erro:
@@ -112,6 +133,12 @@ class TicketRepository:
             """, (id_ticket,))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "REMOVER",
+                    "tickets",
+                    f"id={id_ticket}"
+                )
             print("Ticket removido com sucesso.")
 
         except Exception as erro:

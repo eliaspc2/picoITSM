@@ -63,6 +63,7 @@ picoITSM/
 | `src/services/memory_cache.py` | Carrega dados da base de dados para memória e mantém a aplicação sincronizada. |
 | `src/services/ticket_service.py` | Contém a regra principal de atribuição automática de tickets. |
 | `src/tests/test_ticket_service.py` | Testes unitários do algoritmo de atribuição automática. |
+| `src/utils/logger.py` | Regista alterações de dados num ficheiro de log em texto. |
 | `src/utils/security.py` | Funções auxiliares de segurança, como geração de hash de passwords. |
 | `src/utils/validators.py` | Funções de validação usadas pelos menus. |
 
@@ -490,6 +491,24 @@ Menu(utilizador_atual, dados, cache=None)
 
 ## Utilitários
 
+### `Logger`
+
+Ficheiro: `src/utils/logger.py`
+
+Regista alterações feitas na aplicação no ficheiro `logs/picoitsm.log`.
+É usado pelos repositórios quando há criação, atualização, remoção ou
+associação de dados.
+
+| Método | Parâmetros | Retorno | Para que serve | Como se usa |
+|---|---|---|---|---|
+| `registar(acao, entidade, detalhes="")` | `acao`: tipo de alteração; `entidade`: tabela ou área afetada; `detalhes`: texto opcional | Nenhum | Escreve uma linha no log com data/hora, ação, entidade e detalhes. | `Logger.registar("CRIAR", "clientes", "id=1, nome=Empresa Alpha")` |
+
+Exemplo de linha gerada:
+
+```text
+2026-06-11 11:30:00 | CRIAR | clientes | id=1, nome=Empresa Alpha
+```
+
 ### `SecurityUtils`
 
 Ficheiro: `src/utils/security.py`
@@ -564,5 +583,5 @@ python -m unittest discover -s src/tests
 | Serviços | `src/services/*.py` | Regras de negócio e dados em memória. |
 | Persistência | `src/repositories/*.py` | Operações SQL e ligação aos dados persistidos. |
 | Base de dados | `src/database/*.py` | Criação, ligação e dados de teste. |
-| Utilitários | `src/utils/*.py` | Validações e segurança. |
+| Utilitários | `src/utils/*.py` | Validações, segurança e registo de logs. |
 | Testes | `src/tests/*.py` | Verificação automática do algoritmo principal. |

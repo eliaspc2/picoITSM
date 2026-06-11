@@ -1,4 +1,5 @@
 from database.db_connection import DatabaseConnection
+from utils.logger import Logger
 
 
 class TecnicoCompetenciaRepository:
@@ -22,6 +23,11 @@ class TecnicoCompetenciaRepository:
             conn.commit()
 
             if cursor.rowcount:
+                Logger.registar(
+                    "ASSOCIAR",
+                    "tecnico_competencia",
+                    f"id_tecnico={id_tecnico}, id_competencia={id_competencia}"
+                )
                 print("Competência associada ao técnico com sucesso.")
             else:
                 print("Essa competência já está associada ao técnico.")
@@ -49,6 +55,11 @@ class TecnicoCompetenciaRepository:
             conn.commit()
 
             if cursor.rowcount:
+                Logger.registar(
+                    "REMOVER",
+                    "tecnico_competencia",
+                    f"id_tecnico={id_tecnico}, id_competencia={id_competencia}"
+                )
                 print("Competência removida do técnico com sucesso.")
             else:
                 print("Associação não encontrada.")

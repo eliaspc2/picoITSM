@@ -20,6 +20,7 @@ from repositories.tecnico_repository import TecnicoRepository
 from repositories.cliente_repository import ClienteRepository
 from repositories.competencia_repository import CompetenciaRepository
 from repositories.ticket_repository import TicketRepository
+from utils.logger import Logger
 
 
 def obter_id_por_nome(tabela, nome):
@@ -58,6 +59,12 @@ def associar_tecnico_competencia(id_tecnico, id_competencia):
         ))
 
         conn.commit()
+        if cursor.rowcount:
+            Logger.registar(
+                "ASSOCIAR",
+                "tecnico_competencia",
+                f"id_tecnico={id_tecnico}, id_competencia={id_competencia}"
+            )
 
     except Exception as erro:
         print(f"Erro ao associar técnico a competência: {erro}")

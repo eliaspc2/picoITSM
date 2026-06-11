@@ -1,4 +1,5 @@
 from database.db_connection import DatabaseConnection
+from utils.logger import Logger
 
 
 class CompetenciaRepository:
@@ -18,6 +19,11 @@ class CompetenciaRepository:
 
             conn.commit()
             if cursor.rowcount:
+                Logger.registar(
+                    "CRIAR",
+                    "competencias",
+                    f"id={cursor.lastrowid}, nome={competencia.nome}"
+                )
                 print("Competência criada com sucesso.")
             else:
                 print("Competência já existe.")
@@ -54,6 +60,12 @@ class CompetenciaRepository:
             """, (nome, descricao, id_competencia))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "ATUALIZAR",
+                    "competencias",
+                    f"id={id_competencia}, nome={nome}, descricao={descricao}"
+                )
             print("Competência atualizada com sucesso.")
 
         except Exception as erro:
@@ -73,6 +85,12 @@ class CompetenciaRepository:
             """, (id_competencia,))
 
             conn.commit()
+            if cursor.rowcount:
+                Logger.registar(
+                    "REMOVER",
+                    "competencias",
+                    f"id={id_competencia}"
+                )
             print("Competência removida com sucesso.")
 
         except Exception as erro:

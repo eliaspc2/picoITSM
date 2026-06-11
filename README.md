@@ -312,12 +312,12 @@ Já existe:
 * Hash de passwords em `src/utils/security.py`
 * Controlo básico de opções por perfil no menu
 * Testes unitários iniciais do algoritmo da Entrega 3
+* Logs básicos em texto para alterações de dados
 
 Previsto:
 
 * Reforço de autorização
 * Tratamento de exceções mais completo
-* Logs básicos
 * Mais testes unitários
 * Verificação de vulnerabilidades
 

@@ -1,6 +1,7 @@
 from database.db_connection import DatabaseConnection
 from models.utilizador import Utilizador
 from utils.security import SecurityUtils
+from utils.logger import Logger
 
 
 class UtilizadorRepository:
@@ -30,6 +31,11 @@ class UtilizadorRepository:
             conn.commit()
 
             if cursor.rowcount:
+                Logger.registar(
+                    "CRIAR",
+                    "utilizadores",
+                    f"id={cursor.lastrowid}, username={utilizador.username}, perfil={utilizador.perfil}"
+                )
                 print("Utilizador criado com sucesso.")
             else:
                 print("Utilizador já existe.")
@@ -80,6 +86,11 @@ class UtilizadorRepository:
             conn.commit()
 
             if cursor.rowcount:
+                Logger.registar(
+                    "ATUALIZAR",
+                    "utilizadores",
+                    f"id={id_utilizador}, username={username}, perfil={perfil}, ativo={ativo}"
+                )
                 print("Utilizador atualizado com sucesso.")
             else:
                 print("Utilizador não encontrado.")
@@ -103,6 +114,11 @@ class UtilizadorRepository:
             conn.commit()
 
             if cursor.rowcount:
+                Logger.registar(
+                    "REMOVER",
+                    "utilizadores",
+                    f"id={id_utilizador}"
+                )
                 print("Utilizador removido com sucesso.")
             else:
                 print("Utilizador não encontrado.")
