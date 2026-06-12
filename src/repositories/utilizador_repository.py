@@ -18,14 +18,16 @@ class UtilizadorRepository:
                     username,
                     password_hash,
                     perfil,
-                    ativo
+                    ativo,
+                    id_tecnico
                 )
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
             """, (
                 utilizador.username,
                 password_hash,
                 utilizador.perfil,
-                utilizador.ativo
+                utilizador.ativo,
+                utilizador.id_tecnico
             ))
 
             conn.commit()
@@ -34,7 +36,10 @@ class UtilizadorRepository:
                 Logger.registar(
                     "CRIAR",
                     "utilizadores",
-                    f"id={cursor.lastrowid}, username={utilizador.username}, perfil={utilizador.perfil}"
+                    (
+                        f"id={cursor.lastrowid}, username={utilizador.username}, "
+                        f"perfil={utilizador.perfil}, id_tecnico={utilizador.id_tecnico}"
+                    )
                 )
                 print("Utilizador criado com sucesso.")
             else:
@@ -52,7 +57,7 @@ class UtilizadorRepository:
 
         try:
             cursor.execute("""
-                SELECT id, username, perfil, ativo
+                SELECT id, username, perfil, ativo, id_tecnico
                 FROM utilizadores
             """)
 
@@ -65,7 +70,7 @@ class UtilizadorRepository:
         finally:
             DatabaseConnection.fechar_bd(conn)
 
-    def atualizar(self, id_utilizador, username, perfil, ativo):
+    def atualizar(self, id_utilizador, username, perfil, ativo, id_tecnico=None):
         conn = DatabaseConnection.ligar_bd()
         cursor = conn.cursor()
 
@@ -74,12 +79,14 @@ class UtilizadorRepository:
                 UPDATE utilizadores
                 SET username = ?,
                     perfil = ?,
-                    ativo = ?
+                    ativo = ?,
+                    id_tecnico = ?
                 WHERE id = ?
             """, (
                 username,
                 perfil,
                 ativo,
+                id_tecnico,
                 id_utilizador
             ))
 
@@ -89,7 +96,10 @@ class UtilizadorRepository:
                 Logger.registar(
                     "ATUALIZAR",
                     "utilizadores",
-                    f"id={id_utilizador}, username={username}, perfil={perfil}, ativo={ativo}"
+                    (
+                        f"id={id_utilizador}, username={username}, perfil={perfil}, "
+                        f"ativo={ativo}, id_tecnico={id_tecnico}"
+                    )
                 )
                 print("Utilizador atualizado com sucesso.")
             else:
@@ -133,21 +143,26 @@ class UtilizadorRepository:
         conn = DatabaseConnection.ligar_bd()
         cursor = conn.cursor()
 
-        password_hash = SecurityUtils.gerar_hash(password)
-
         try:
             cursor.execute("""
-                SELECT id, username, perfil, ativo
+                SELECT id, username, password_hash, perfil, ativo, id_tecnico
                 FROM utilizadores
                 WHERE username = ?
-                AND password_hash = ?
                 AND ativo = 1
-            """, (
-                username,
-                password_hash
-            ))
+            """, (username,))
 
-            return cursor.fetchone()
+            utilizador = cursor.fetchone()
+
+            if utilizador and SecurityUtils.verificar_password(password, utilizador[2]):
+                return (
+                    utilizador[0],
+                    utilizador[1],
+                    utilizador[3],
+                    utilizador[4],
+                    utilizador[5]
+                )
+
+            return None
 
         except Exception as erro:
             print(f"Erro ao autenticar utilizador: {erro}")
@@ -157,7 +172,7 @@ class UtilizadorRepository:
             DatabaseConnection.fechar_bd(conn)
 
 
-def criar_utilizador(username, password, perfil):
-    utilizador = Utilizador(username, password, perfil)
+def criar_utilizador(username, password, perfil, id_tecnico=None):
+    utilizador = Utilizador(username, password, perfil, id_tecnico=id_tecnico)
     utilizador_repository = UtilizadorRepository()
     utilizador_repository.criar(utilizador)

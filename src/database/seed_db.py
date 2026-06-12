@@ -73,6 +73,36 @@ def associar_tecnico_competencia(id_tecnico, id_competencia):
         DatabaseConnection.fechar_bd(conn)
 
 
+def associar_utilizador_tecnico(username, id_tecnico):
+    conn = DatabaseConnection.ligar_bd()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+            UPDATE utilizadores
+            SET id_tecnico = ?
+            WHERE username = ?
+        """, (
+            id_tecnico,
+            username
+        ))
+
+        conn.commit()
+
+        if cursor.rowcount:
+            Logger.registar(
+                "ATUALIZAR",
+                "utilizadores",
+                f"username={username}, id_tecnico={id_tecnico}"
+            )
+
+    except Exception as erro:
+        print(f"Erro ao associar utilizador a técnico: {erro}")
+
+    finally:
+        DatabaseConnection.fechar_bd(conn)
+
+
 def seed():
     criar_tabelas()
 
@@ -86,10 +116,6 @@ def seed():
 
     utilizador_repository.criar(
         Utilizador("admin", "admin123", "ADMIN")
-    )
-
-    utilizador_repository.criar(
-        Utilizador("user", "user123", "TECNICO")
     )
 
     tecnico_repository.criar(
@@ -122,6 +148,18 @@ def seed():
 
     id_joao = obter_id_por_nome("tecnicos", "João Silva")
     id_maria = obter_id_por_nome("tecnicos", "Maria Santos")
+
+    utilizador_repository.criar(
+        Utilizador("user", "user123", "TECNICO", id_tecnico=id_joao)
+    )
+
+    utilizador_repository.criar(
+        Utilizador("maria", "tecnico123", "TECNICO", id_tecnico=id_maria)
+    )
+
+    associar_utilizador_tecnico("user", id_joao)
+    associar_utilizador_tecnico("joao", id_joao)
+    associar_utilizador_tecnico("maria", id_maria)
 
     id_redes = obter_id_por_nome("competencias", "Redes")
     id_hardware = obter_id_por_nome("competencias", "Hardware")

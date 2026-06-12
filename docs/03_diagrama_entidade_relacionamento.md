@@ -16,6 +16,7 @@ erDiagram
         string password_hash
         string perfil
         boolean ativo
+        int id_tecnico FK
     }
 
     TECNICOS {
@@ -80,6 +81,7 @@ erDiagram
     }
 
     TECNICOS ||--o{ TECNICO_COMPETENCIA : possui
+    TECNICOS o|--o{ UTILIZADORES : autentica
     COMPETENCIAS ||--o{ TECNICO_COMPETENCIA : classifica
     TECNICOS ||--o{ DISPONIBILIDADES : define
     TECNICOS o|--o{ TICKETS : recebe

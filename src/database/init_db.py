@@ -29,7 +29,9 @@ def criar_tabelas():
             username TEXT NOT NULL UNIQUE,
             password_hash TEXT NOT NULL,
             perfil TEXT NOT NULL,
-            ativo INTEGER DEFAULT 1
+            ativo INTEGER DEFAULT 1,
+            id_tecnico INTEGER,
+            FOREIGN KEY (id_tecnico) REFERENCES tecnicos(id)
         )
     """)
 
@@ -48,6 +50,13 @@ def criar_tabelas():
         "tecnicos",
         "ativo",
         "INTEGER DEFAULT 1"
+    )
+
+    adicionar_coluna_se_nao_existir(
+        cursor,
+        "utilizadores",
+        "id_tecnico",
+        "INTEGER"
     )
 
     cursor.execute("""

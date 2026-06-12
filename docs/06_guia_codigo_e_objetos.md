@@ -63,6 +63,8 @@ picoITSM/
 | `src/services/memory_cache.py` | Carrega dados da base de dados para memória e mantém a aplicação sincronizada. |
 | `src/services/ticket_service.py` | Contém a regra principal de atribuição automática de tickets. |
 | `src/tests/test_ticket_service.py` | Testes unitários do algoritmo de atribuição automática. |
+| `src/tests/test_menu_autorizacao.py` | Testes de visibilidade de tickets por perfil. |
+| `src/tests/test_security_logger_validators.py` | Testes de segurança, logger e validações. |
 | `src/utils/logger.py` | Regista alterações de dados num ficheiro de log em texto. |
 | `src/utils/security.py` | Funções auxiliares de segurança, como geração de hash de passwords. |
 | `src/utils/validators.py` | Funções de validação usadas pelos menus. |
@@ -175,11 +177,13 @@ Representa um utilizador que pode iniciar sessão.
 | `password` | `str` | Sim | Password antes de ser transformada em hash. |
 | `perfil` | `str` | Sim | Perfil: `ADMIN` ou `TECNICO`. |
 | `ativo` | `int` | Não | `1` para ativo, `0` para inativo. Valor por defeito: `1`. |
+| `id_tecnico` | `int` ou `None` | Não | Técnico associado ao utilizador quando o perfil é `TECNICO`. |
 
 Uso:
 
 ```python
 utilizador = Utilizador("admin", "admin123", "ADMIN")
+utilizador_tecnico = Utilizador("user", "user123", "TECNICO", id_tecnico=1)
 ```
 
 ## Base de Dados
@@ -212,6 +216,7 @@ Ficheiro: `src/database/seed_db.py`
 |---|---|---|---|---|
 | `obter_id_por_nome(tabela, nome)` | `tabela`: nome da tabela; `nome`: valor a pesquisar | `int` ou `None` | Procura o ID de um registo através do campo `nome`. | `id_redes = obter_id_por_nome("competencias", "Redes")` |
 | `associar_tecnico_competencia(id_tecnico, id_competencia)` | IDs do técnico e da competência | Nenhum | Cria a associação entre um técnico e uma competência. | `associar_tecnico_competencia(1, 2)` |
+| `associar_utilizador_tecnico(username, id_tecnico)` | Username e ID do técnico | Nenhum | Liga um utilizador técnico ao técnico correspondente. | `associar_utilizador_tecnico("user", 1)` |
 | `seed()` | Nenhum | Nenhum | Cria as tabelas e insere dados iniciais de teste. | `seed()` ou `python src/database/seed_db.py` |
 
 ## Repositórios
@@ -257,6 +262,7 @@ Ficheiro: `src/repositories/tecnico_repository.py`
 |---|---|---|---|
 | `criar(tecnico)` | `tecnico`: objeto `Tecnico` | Nenhum | Insere um técnico na base de dados. |
 | `listar()` | Nenhum | Lista de tuplos | Devolve todos os técnicos. |
+| `obter_por_email(email)` | Email do técnico | Tuplo ou `None` | Procura um técnico através do email. |
 | `atualizar(id_tecnico, nome, email, disponivel, ativo)` | ID e novos dados | Nenhum | Atualiza um técnico existente. |
 | `remover(id_tecnico)` | ID do técnico | Nenhum | Remove o técnico indicado. |
 
@@ -289,11 +295,11 @@ Ficheiro: `src/repositories/utilizador_repository.py`
 | Método/Função | Parâmetros | Retorno | Para que serve |
 |---|---|---|---|
 | `criar(utilizador)` | `utilizador`: objeto `Utilizador` | Nenhum | Guarda um utilizador com password em hash. |
-| `listar()` | Nenhum | Lista de tuplos | Lista utilizadores sem mostrar passwords. |
-| `atualizar(id_utilizador, username, perfil, ativo)` | ID e novos dados | Nenhum | Atualiza username, perfil e estado ativo. |
+| `listar()` | Nenhum | Lista de tuplos | Lista utilizadores sem mostrar passwords, incluindo o técnico associado. |
+| `atualizar(id_utilizador, username, perfil, ativo, id_tecnico=None)` | ID e novos dados | Nenhum | Atualiza username, perfil, estado ativo e técnico associado. |
 | `remover(id_utilizador)` | ID do utilizador | Nenhum | Remove um utilizador. |
-| `autenticar(username, password)` | Credenciais de login | Tuplo ou `None` | Valida username/password e devolve o utilizador ativo. |
-| `criar_utilizador(username, password, perfil)` | Dados do utilizador | Nenhum | Função auxiliar para criar utilizadores sem instanciar o repositório manualmente. |
+| `autenticar(username, password)` | Credenciais de login | Tuplo ou `None` | Valida username/password e devolve o utilizador ativo com o `id_tecnico`. |
+| `criar_utilizador(username, password, perfil, id_tecnico=None)` | Dados do utilizador | Nenhum | Função auxiliar para criar utilizadores sem instanciar o repositório manualmente. |
 
 Uso:
 
@@ -390,6 +396,8 @@ Menu(utilizador_atual, dados, cache=None)
 | `menu_competencias()` | Nenhum | Controla o submenu de competências. |
 | `menu_competencias_tecnico()` | Nenhum | Controla a gestão de competências associadas a técnicos. |
 | `menu_utilizadores()` | Nenhum | Controla o submenu de utilizadores. |
+| `obter_id_tecnico_utilizador_atual()` | Nenhum | Obtém o técnico associado ao utilizador autenticado. |
+| `exigir_admin()` | Nenhum | Bloqueia operações administrativas para utilizadores que não sejam `ADMIN`. |
 
 #### Operações de técnicos
 
@@ -438,6 +446,9 @@ Menu(utilizador_atual, dados, cache=None)
 | `fechar_ticket()` | Nenhum | Define diretamente o estado como `FECHADO`. |
 | `excluir_ticket()` | Nenhum | Remove um ticket. |
 
+Nota: administradores visualizam todos os tickets. Utilizadores com perfil
+`TECNICO` visualizam e acedem apenas aos tickets atribuídos ao seu `id_tecnico`.
+
 #### Operações de utilizadores
 
 | Método | Parâmetros | Para que serve |
@@ -482,6 +493,9 @@ Menu(utilizador_atual, dados, cache=None)
 | `mostrar_competencias()` | Nenhum | Nenhum | Mostra competências disponíveis para escolha. |
 | `obter_nome_por_id(chave, id_registo)` | Lista em `dados` e ID | `str` | Procura o nome de um registo. |
 | `obter_registo_por_id(chave, id_registo)` | Lista em `dados` e ID | Tuplo ou `None` | Procura o registo completo. |
+| `obter_tickets_visiveis()` | Nenhum | Lista de tuplos | Devolve todos os tickets para `ADMIN` ou apenas os tickets do técnico autenticado. |
+| `ticket_esta_visivel(id_ticket)` | ID do ticket | `bool` | Verifica se o utilizador atual pode aceder ao ticket. |
+| `ler_id_ticket_visivel(mensagem)` | Texto apresentado ao utilizador | `int` ou `None` | Lê um ticket existente e permitido para o perfil atual. |
 | `cliente_tem_tickets(id_cliente)` | ID do cliente | `bool` | Verifica se o cliente tem tickets associados. |
 | `tecnico_tem_tickets(id_tecnico)` | ID do técnico | `bool` | Verifica se o técnico tem tickets associados. |
 | `competencia_tem_tickets(id_competencia)` | ID da competência | `bool` | Verifica se a competência é usada em tickets. |
@@ -568,6 +582,28 @@ Ficheiro: `src/tests/test_ticket_service.py`
 | `test_tecnico_com_competencia_e_escolhido()` | Nenhum | Garante que só são escolhidos técnicos com a competência necessária. |
 | `test_tecnico_com_menor_carga_e_escolhido()` | Nenhum | Garante que o técnico com menor carga é escolhido. |
 | `test_sem_candidatos_retorna_none()` | Nenhum | Garante que o sistema devolve `None` quando não há candidato elegível. |
+
+### `test_menu_autorizacao.py`
+
+Ficheiro: `src/tests/test_menu_autorizacao.py`
+
+| Função/Método | Parâmetros | Para que serve |
+|---|---|---|
+| `criar_dados_tickets()` | Nenhum | Cria tickets simulados para testar permissões. |
+| `test_admin_ve_todos_os_tickets()` | Nenhum | Garante que administradores veem todos os tickets. |
+| `test_tecnico_ve_apenas_os_seus_tickets()` | Nenhum | Garante que técnicos veem apenas tickets atribuídos ao seu `id_tecnico`. |
+| `test_tecnico_sem_ligacao_nao_ve_tickets()` | Nenhum | Garante que técnicos sem associação a técnico não veem tickets. |
+
+### `test_security_logger_validators.py`
+
+Ficheiro: `src/tests/test_security_logger_validators.py`
+
+| Função/Método | Parâmetros | Para que serve |
+|---|---|---|
+| `test_password_pbkdf2_e_validada()` | Nenhum | Garante que PBKDF2 valida passwords corretas e rejeita erradas. |
+| `test_password_sha256_antiga_continua_valida()` | Nenhum | Garante compatibilidade com hashes SHA-256 antigos. |
+| `test_logger_regista_utilizador_atual()` | Nenhum | Garante que o log inclui o utilizador autenticado. |
+| `test_validadores_principais()` | Nenhum | Garante o funcionamento das validações principais. |
 
 Executar:
 

@@ -50,6 +50,21 @@ class TecnicoRepository:
 
         return tecnicos
 
+    def obter_por_email(self, email):
+        conn = DatabaseConnection.ligar_bd()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT id, nome, email, disponivel, ativo
+            FROM tecnicos
+            WHERE email = ?
+        """, (email,))
+
+        tecnico = cursor.fetchone()
+        DatabaseConnection.fechar_bd(conn)
+
+        return tecnico
+
     def atualizar(self, id_tecnico, nome, email, disponivel, ativo):
         conn = DatabaseConnection.ligar_bd()
         cursor = conn.cursor()

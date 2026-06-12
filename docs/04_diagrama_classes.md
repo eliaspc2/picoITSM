@@ -13,6 +13,7 @@ classDiagram
         +password: str
         +perfil: str
         +ativo: int
+        +id_tecnico: int
     }
 
     class Tecnico {

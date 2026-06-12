@@ -36,6 +36,20 @@ class Menu:
     def eh_admin(self):
         return self.utilizador_atual[2] == "ADMIN"
 
+    def obter_id_tecnico_utilizador_atual(self):
+        if len(self.utilizador_atual) >= 5:
+            return self.utilizador_atual[4]
+
+        return None
+
+    def exigir_admin(self):
+        if self.eh_admin():
+            return True
+
+        print("\nAcesso negado. Esta opção é exclusiva de administradores.")
+        input("\nPrima Enter para continuar...")
+        return False
+
     def desenhar_menu(self):
         print("\n=== picoITSM ===\n"
             "1. Clientes\n"
@@ -116,6 +130,9 @@ class Menu:
         "0. Voltar ao Menu Principal\n")
 
     def menu_tecnicos(self):
+        if not self.exigir_admin():
+            return
+
         while True:
             self.limpar_ecra()
             self.desenhar_menu_tecnicos()
@@ -182,6 +199,9 @@ class Menu:
                 print("\nOpção inválida. Por favor, tente novamente.")
 
     def menu_competencias(self):
+        if not self.exigir_admin():
+            return
+
         while True:
             self.limpar_ecra()
             self.desenhar_menu_competencias()
@@ -219,6 +239,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def adicionar_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print("\n=== Adicionar Técnico ===\n")
@@ -236,6 +259,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def editar_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_tecnicos()
         self.limpar_ecra()
 
@@ -255,6 +281,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def excluir_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_tecnicos()
         self.limpar_ecra()
 
@@ -279,6 +308,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def menu_competencias_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         while True:
             self.limpar_ecra()
             print("\n=== Competências do Técnico ===\n"
@@ -325,6 +357,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def associar_competencia_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print("\n=== Associar Competência ao Técnico ===\n")
@@ -343,6 +378,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def remover_competencia_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print("\n=== Remover Competência do Técnico ===\n")
@@ -453,6 +491,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def adicionar_competencia(self):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print("\n=== Adicionar Competência ===\n")
@@ -467,6 +508,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def editar_competencia(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_competencias()
         self.limpar_ecra()
 
@@ -484,6 +528,9 @@ class Menu:
         input("\nPrima Enter para continuar...")
 
     def excluir_competencia(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_competencias()
         self.limpar_ecra()
 
@@ -512,16 +559,56 @@ class Menu:
 
         print("\n=== Lista de Tickets ===\n")
 
-        if not self.dados["tickets"]:
+        tickets = self.obter_tickets_visiveis()
+
+        if not tickets:
             print("Não existem tickets registados.")
             input("\nPrima Enter para continuar...")
             return
 
-        for ticket in self.dados["tickets"]:
+        for ticket in tickets:
             tecnico = ticket[10] if ticket[10] else "Sem técnico"
             print(f"{ticket[0]} - {ticket[1]} | {ticket[3]} | {ticket[4]} | {tecnico}")
 
         input("\nPrima Enter para continuar...")
+
+    def obter_tickets_visiveis(self):
+        if self.eh_admin():
+            return self.dados["tickets"]
+
+        id_tecnico = self.obter_id_tecnico_utilizador_atual()
+
+        if id_tecnico is None:
+            return []
+
+        return [
+            ticket
+            for ticket in self.dados["tickets"]
+            if ticket[7] == id_tecnico
+        ]
+
+    def ticket_esta_visivel(self, id_ticket):
+        for ticket in self.obter_tickets_visiveis():
+            if ticket[0] == id_ticket:
+                return True
+
+        return False
+
+    def ler_id_ticket_visivel(self, mensagem):
+        tickets = self.obter_tickets_visiveis()
+
+        if not tickets:
+            print("\nNão existem tickets disponíveis para o seu perfil.")
+            input("\nPrima Enter para continuar...")
+            return None
+
+        while True:
+            id_ticket = self.ler_numero_positivo(mensagem)
+
+            if self.ticket_esta_visivel(id_ticket):
+                return id_ticket
+
+            print("Ticket inexistente ou sem permissão de acesso.")
 
     def adicionar_ticket(self):
         self.limpar_ecra()
@@ -565,7 +652,10 @@ class Menu:
 
         print("\n=== Editar Ticket ===\n")
 
-        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
+        id_ticket = self.ler_id_ticket_visivel("ID do ticket: ")
+        if id_ticket is None:
+            return
+
         ticket_atual = self.obter_registo_por_id("tickets", id_ticket)
 
         titulo = self.ler_texto_opcional("Título", ticket_atual[1])
@@ -611,7 +701,10 @@ class Menu:
 
         print("\n=== Alterar Estado do Ticket ===\n")
 
-        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
+        id_ticket = self.ler_id_ticket_visivel("ID do ticket: ")
+        if id_ticket is None:
+            return
+
         ticket_atual = self.obter_registo_por_id("tickets", id_ticket)
         estado = self.ler_estado_ticket("Estado (ABERTO/EM_CURSO/FECHADO): ")
 
@@ -635,7 +728,10 @@ class Menu:
 
         print("\n=== Fechar Ticket ===\n")
 
-        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
+        id_ticket = self.ler_id_ticket_visivel("ID do ticket: ")
+        if id_ticket is None:
+            return
+
         ticket_atual = self.obter_registo_por_id("tickets", id_ticket)
 
         self.ticket_repository.atualizar(
@@ -658,7 +754,10 @@ class Menu:
 
         print("\n=== Excluir Ticket ===\n")
 
-        id_ticket = self.ler_id_existente("tickets", "ID do ticket: ")
+        id_ticket = self.ler_id_ticket_visivel("ID do ticket: ")
+        if id_ticket is None:
+            return
+
         self.ticket_repository.remover(id_ticket)
         self.recarregar_dados()
 
@@ -937,8 +1036,10 @@ class Menu:
     def criar_utilizador_padrao_tecnico(self, email):
         username = email.split("@")[0].lower()
         password = "tecnico123"
+        tecnico = self.tecnico_repository.obter_por_email(email)
+        id_tecnico = tecnico[0] if tecnico else None
 
-        utilizador = Utilizador(username, password, "TECNICO")
+        utilizador = Utilizador(username, password, "TECNICO", id_tecnico=id_tecnico)
         self.utilizador_repository.criar(utilizador)
 
         print("\nUtilizador de login criado para o técnico.")
@@ -956,6 +1057,9 @@ class Menu:
 
 
     def menu_utilizadores(self):
+        if not self.exigir_admin():
+            return
+
         while True:
             self.limpar_ecra()
             self.desenhar_menu_utilizadores()
@@ -978,12 +1082,21 @@ class Menu:
                 print("\nOpção inválida. Por favor, tente novamente.")
 
     def adicionar_administrador(self):
+        if not self.exigir_admin():
+            return
+
         self.adicionar_utilizador_com_perfil("ADMIN")
 
     def adicionar_utilizador_tecnico(self):
+        if not self.exigir_admin():
+            return
+
         self.adicionar_utilizador_com_perfil("TECNICO")
 
     def adicionar_utilizador_com_perfil(self, perfil):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print(f"\n=== Criar Utilizador {perfil} ===\n")
@@ -996,13 +1109,23 @@ class Menu:
             input("\nPrima Enter para continuar...")
             return
 
-        utilizador = Utilizador(username, password, perfil)
+        id_tecnico = None
+
+        if perfil == "TECNICO":
+            print("\nTécnicos:")
+            self.mostrar_tecnicos()
+            id_tecnico = self.ler_id_tecnico_opcional("ID do técnico (0 para sem técnico): ")
+
+        utilizador = Utilizador(username, password, perfil, id_tecnico=id_tecnico)
         self.utilizador_repository.criar(utilizador)
         self.recarregar_dados()
 
         input("\nPrima Enter para continuar...")
 
     def listar_utilizadores(self):
+        if not self.exigir_admin():
+            return
+
         self.limpar_ecra()
 
         print("\n=== Lista de Utilizadores ===\n")
@@ -1014,11 +1137,15 @@ class Menu:
 
         for utilizador in self.dados["utilizadores"]:
             ativo = "Sim" if utilizador[3] == 1 else "Não"
-            print(f"{utilizador[0]} - {utilizador[1]} | {utilizador[2]} | Ativo: {ativo}")
+            id_tecnico = utilizador[4] if len(utilizador) >= 5 and utilizador[4] else "Sem técnico"
+            print(f"{utilizador[0]} - {utilizador[1]} | {utilizador[2]} | Ativo: {ativo} | Técnico: {id_tecnico}")
 
         input("\nPrima Enter para continuar...")
 
     def editar_utilizador(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_utilizadores()
         self.limpar_ecra()
 
@@ -1030,13 +1157,25 @@ class Menu:
         username = self.ler_texto_opcional("Username", utilizador_atual[1])
         perfil = self.ler_perfil_utilizador_opcional("Perfil", utilizador_atual[2])
         ativo = self.ler_booleano_opcional("Ativo", utilizador_atual[3])
+        id_tecnico_atual = utilizador_atual[4] if len(utilizador_atual) >= 5 else None
+        id_tecnico = id_tecnico_atual
 
-        self.utilizador_repository.atualizar(id_utilizador, username, perfil, ativo)
+        if perfil == "TECNICO":
+            print("\nTécnicos:")
+            self.mostrar_tecnicos()
+            id_tecnico = self.ler_id_tecnico_opcional_com_atual("ID do técnico", id_tecnico_atual)
+        else:
+            id_tecnico = None
+
+        self.utilizador_repository.atualizar(id_utilizador, username, perfil, ativo, id_tecnico)
         self.recarregar_dados()
 
         input("\nPrima Enter para continuar...")
 
     def excluir_utilizador(self):
+        if not self.exigir_admin():
+            return
+
         self.listar_utilizadores()
         self.limpar_ecra()
 

@@ -36,15 +36,18 @@ Aplicação totalmente desenvolvida em linha de comandos (CLI).
 
 ## Utilizadores de teste
 
-Depois de executar o seed da base de dados, existem dois utilizadores principais para teste:
+Depois de executar o seed da base de dados, existem três utilizadores principais para teste:
 
 ```text
 admin - admin123
 user  - user123
+maria - tecnico123
 ```
 
 O utilizador `admin` tem perfil `ADMIN`.
-O utilizador `user` tem perfil `TECNICO`.
+Os utilizadores `user` e `maria` têm perfil `TECNICO`.
+O utilizador `user` está associado ao técnico João Silva.
+O utilizador `maria` está associado à técnica Maria Santos.
 
 ## Funcionalidades previstas
 
@@ -304,22 +307,26 @@ Esta organização permite que o menu use métodos bem definidos sem aceder dire
 
 ## Entrega 5 - Segurança, testes e fiabilidade
 
-Entrega ainda em desenvolvimento.
+Na Entrega 5 ficaram reforçadas a segurança, a autorização, a fiabilidade e os testes automatizados.
 
-Já existe:
+Ficou pronto:
 
 * Autenticação simples de utilizadores
-* Hash de passwords em `src/utils/security.py`
-* Controlo básico de opções por perfil no menu
-* Testes unitários iniciais do algoritmo da Entrega 3
-* Logs básicos em texto para alterações de dados
+* Hash de passwords com PBKDF2 em `src/utils/security.py`
+* Compatibilidade com hashes SHA-256 antigos
+* Controlo de opções por perfil no menu
+* Ligação entre utilizador técnico e técnico através de `id_tecnico`
+* Técnicos visualizam apenas os seus próprios tickets
+* Administradores visualizam todos os tickets
+* Proteção adicional em métodos administrativos
+* Chaves estrangeiras SQLite ativas em cada ligação
+* Logs em texto para alterações de dados, incluindo o utilizador autenticado
+* Testes unitários do algoritmo de atribuição
+* Testes unitários de autorização de tickets por perfil
+* Testes unitários de segurança, logger e validações
+* Análise de vulnerabilidades em `docs/07_analise_vulnerabilidades.md`
 
-Previsto:
-
-* Reforço de autorização
-* Tratamento de exceções mais completo
-* Mais testes unitários
-* Verificação de vulnerabilidades
+Estado da entrega: concluída.
 
 ## Entrega 6 - Otimização, documentação e defesa
 
