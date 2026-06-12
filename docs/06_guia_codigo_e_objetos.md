@@ -501,12 +501,14 @@ associação de dados.
 
 | Método | Parâmetros | Retorno | Para que serve | Como se usa |
 |---|---|---|---|---|
-| `registar(acao, entidade, detalhes="")` | `acao`: tipo de alteração; `entidade`: tabela ou área afetada; `detalhes`: texto opcional | Nenhum | Escreve uma linha no log com data/hora, ação, entidade e detalhes. | `Logger.registar("CRIAR", "clientes", "id=1, nome=Empresa Alpha")` |
+| `definir_utilizador(utilizador)` | Tuplo do utilizador autenticado | Nenhum | Guarda o utilizador atual numa variável da classe `Logger`. | `Logger.definir_utilizador(utilizador_atual)` |
+| `obter_nome_utilizador()` | Nenhum | `str` | Devolve o username atual ou `SISTEMA` quando ainda não há sessão. | `Logger.obter_nome_utilizador()` |
+| `registar(acao, entidade, detalhes="")` | `acao`: tipo de alteração; `entidade`: tabela ou área afetada; `detalhes`: texto opcional | Nenhum | Escreve uma linha no log com data/hora, utilizador, ação, entidade e detalhes. | `Logger.registar("CRIAR", "clientes", "id=1, nome=Empresa Alpha")` |
 
 Exemplo de linha gerada:
 
 ```text
-2026-06-11 11:30:00 | CRIAR | clientes | id=1, nome=Empresa Alpha
+2026-06-12 10:30:00 | admin | CRIAR | clientes | id=1, nome=Empresa Alpha
 ```
 
 ### `SecurityUtils`

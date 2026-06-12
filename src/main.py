@@ -5,6 +5,7 @@ from database.init_db import criar_tabelas
 from menus.menu import Menu
 from repositories.utilizador_repository import UtilizadorRepository
 from services.memory_cache import MemoryCache
+from utils.logger import Logger
 
 
 def login():
@@ -37,7 +38,10 @@ def main():
 
     dados = cache.obter_dados()
 
-    menu = Menu(login(), dados, cache)
+    utilizador_atual = login()
+    Logger.definir_utilizador(utilizador_atual)
+
+    menu = Menu(utilizador_atual, dados, cache)
     menu.mostrar_menu()
 
 
