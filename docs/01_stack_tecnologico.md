@@ -43,10 +43,12 @@ flowchart TD
 
 ## Algoritmo Principal
 
-A atribuição automática seleciona técnicos ativos e disponíveis que possuam a
-competência necessária. Os candidatos são colocados numa fila de prioridade
-(`heap`), ordenada pela carga de tickets ainda não fechados. Em caso de empate,
-é utilizado o identificador do técnico para garantir uma escolha determinística.
+A atribuição automática seleciona técnicos ativos que possuam a competência
+necessária. O sistema dá prioridade a técnicos disponíveis; se nenhum técnico
+disponível cumprir a competência necessária, escolhe um técnico ativo com essa
+competência. Os candidatos são colocados numa fila de prioridade (`heap`),
+ordenada pela carga de tickets ainda não fechados. Em caso de empate, é
+utilizado o identificador do técnico para garantir uma escolha determinística.
 
 ## Portabilidade
 

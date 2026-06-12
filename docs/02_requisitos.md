@@ -30,7 +30,7 @@ implementados na versão atual.
 | RF09 | Associar cada ticket a um cliente e a uma competência necessária. | Alta | Implementado |
 | RF10 | Definir prioridade e atualizar o estado de um ticket. | Alta | Implementado |
 | RF11 | Atribuir automaticamente um ticket a um técnico elegível. | Alta | Implementado |
-| RF12 | Considerar competência, disponibilidade e carga de trabalho na atribuição. | Alta | Implementado |
+| RF12 | Considerar competência, disponibilidade e carga de trabalho na atribuição, usando disponibilidade como preferência. | Alta | Implementado |
 | RF13 | Permitir que um ticket fique sem técnico quando não existam candidatos. | Média | Implementado |
 | RF14 | Criar, consultar, editar, ativar e remover utilizadores. | Alta | Implementado |
 | RF15 | Guardar os dados em SQLite e carregá-los ao iniciar a aplicação. | Alta | Implementado |
@@ -44,7 +44,7 @@ implementados na versão atual.
 
 | ID | Regra |
 |---|---|
-| RN01 | Apenas técnicos ativos e disponíveis podem receber tickets automaticamente. |
+| RN01 | Técnicos disponíveis têm prioridade na atribuição automática. |
 | RN02 | O técnico tem de possuir a competência exigida pelo ticket. |
 | RN03 | A carga corresponde ao número de tickets atribuídos que não estejam fechados. |
 | RN04 | Entre técnicos elegíveis, é escolhido o que tiver menor carga. |
@@ -52,6 +52,7 @@ implementados na versão atual.
 | RN06 | Clientes, técnicos e competências com relações existentes não devem ser removidos sem tratamento dessas relações. |
 | RN07 | Apenas administradores podem gerir técnicos, competências e utilizadores. |
 | RN08 | Cada username, email de cliente, email de técnico e nome de competência deve ser único. |
+| RN09 | Se não existir técnico disponível com a competência necessária, o ticket é atribuído ao técnico ativo com essa competência e menor carga. |
 
 ## Requisitos Não-Funcionais
 
@@ -74,6 +75,7 @@ implementados na versão atual.
 1. Um utilizador válido consegue autenticar-se e abrir o menu correspondente ao perfil.
 2. Um administrador consegue gerir clientes, técnicos, competências, utilizadores e tickets.
 3. Ao criar um ticket, o sistema escolhe o técnico disponível com a competência exigida e menor carga.
-4. Quando não existe técnico elegível, o ticket é guardado sem atribuição.
-5. Os dados mantêm-se após fechar e voltar a iniciar a aplicação.
-6. Os testes automatizados do algoritmo terminam com sucesso.
+4. Quando não existe técnico disponível com a competência exigida, o sistema escolhe o técnico ativo com menor carga.
+5. Quando não existe técnico com a competência exigida, o ticket é guardado sem atribuição.
+6. Os dados mantêm-se após fechar e voltar a iniciar a aplicação.
+7. Os testes automatizados do algoritmo terminam com sucesso.

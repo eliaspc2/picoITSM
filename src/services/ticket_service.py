@@ -31,35 +31,40 @@ class TicketService:
         return carga
 
     def escolher_tecnico(self, id_competencia):
-        fila_prioridade = []
+        fila_disponiveis = []
+        fila_todos = []
 
         for tecnico in self.dados["tecnicos"]:
             id_tecnico = tecnico[0]
             disponivel = tecnico[3]
             ativo = tecnico[4]
 
-            if disponivel == 1 and ativo == 1:
-                if self.tecnico_tem_competencia(id_tecnico, id_competencia):
-                    carga = self.calcular_carga_tecnico(id_tecnico)
+            if ativo == 1 and self.tecnico_tem_competencia(id_tecnico, id_competencia):
+                carga = self.calcular_carga_tecnico(id_tecnico)
+                candidato = (
+                    carga,
+                    id_tecnico,
+                    tecnico[1],
+                    disponivel
+                )
 
-                    heapq.heappush(
-                        fila_prioridade,
-                        (
-                            carga,
-                            id_tecnico,
-                            tecnico[1]
-                        )
-                    )
+                heapq.heappush(fila_todos, candidato)
 
-        if not fila_prioridade:
+                if disponivel == 1:
+                    heapq.heappush(fila_disponiveis, candidato)
+
+        if fila_disponiveis:
+            carga, id_tecnico, nome, disponivel = heapq.heappop(fila_disponiveis)
+        elif fila_todos:
+            carga, id_tecnico, nome, disponivel = heapq.heappop(fila_todos)
+        else:
             return None
-
-        carga, id_tecnico, nome = heapq.heappop(fila_prioridade)
 
         return {
             "id_tecnico": id_tecnico,
             "nome": nome,
-            "carga": carga
+            "carga": carga,
+            "disponivel": disponivel
         }
 
     def criar_ticket_com_atribuicao(self, titulo, descricao, prioridade, id_cliente, id_competencia):

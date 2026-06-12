@@ -340,13 +340,15 @@ dados = cache.obter_dados()
 Ficheiro: `src/services/ticket_service.py`
 
 Contém o algoritmo principal da aplicação: escolher automaticamente o técnico
-mais adequado para um ticket.
+mais adequado para um ticket. A disponibilidade é usada como prioridade. Se não
+houver técnico disponível com a competência necessária, o sistema escolhe entre
+técnicos ativos com essa competência.
 
 | Método | Parâmetros | Retorno | Para que serve |
 |---|---|---|---|
 | `tecnico_tem_competencia(id_tecnico, id_competencia)` | IDs do técnico e da competência | `bool` | Verifica se um técnico tem a competência exigida. |
 | `calcular_carga_tecnico(id_tecnico)` | ID do técnico | `int` | Conta quantos tickets não fechados estão atribuídos ao técnico. |
-| `escolher_tecnico(id_competencia)` | ID da competência necessária | `dict` ou `None` | Escolhe o técnico ativo, disponível, competente e com menor carga. |
+| `escolher_tecnico(id_competencia)` | ID da competência necessária | `dict` ou `None` | Escolhe primeiro o técnico disponível com menor carga. Se não existir disponível, escolhe o técnico ativo com menor carga. |
 | `criar_ticket_com_atribuicao(titulo, descricao, prioridade, id_cliente, id_competencia)` | Dados do ticket | `dict` ou `None` | Cria o ticket e tenta atribuí-lo automaticamente. |
 
 Uso:
@@ -582,6 +584,7 @@ Ficheiro: `src/tests/test_ticket_service.py`
 | `test_tecnico_com_competencia_e_escolhido()` | Nenhum | Garante que só são escolhidos técnicos com a competência necessária. |
 | `test_tecnico_com_menor_carga_e_escolhido()` | Nenhum | Garante que o técnico com menor carga é escolhido. |
 | `test_sem_candidatos_retorna_none()` | Nenhum | Garante que o sistema devolve `None` quando não há candidato elegível. |
+| `test_sem_disponiveis_escolhe_ativo_com_menor_carga()` | Nenhum | Garante que o sistema atribui a um técnico ativo com menor carga quando nenhum técnico está disponível. |
 
 ### `test_menu_autorizacao.py`
 

@@ -62,6 +62,24 @@ class TestTicketService(unittest.TestCase):
 
         self.assertIsNone(tecnico)
 
+    def test_sem_disponiveis_escolhe_ativo_com_menor_carga(self):
+        dados = criar_dados_teste()
+
+        dados["tecnicos"] = [
+            (1, "João Silva", "joao@picoitsm.pt", 0, 1),
+            (2, "Maria Santos", "maria@picoitsm.pt", 0, 1),
+            (3, "Carlos Lima", "carlos@picoitsm.pt", 0, 1),
+        ]
+
+        service = TicketService(dados)
+
+        tecnico = service.escolher_tecnico(1)
+
+        self.assertIsNotNone(tecnico)
+        self.assertEqual(tecnico["id_tecnico"], 3)
+        self.assertEqual(tecnico["carga"], 0)
+        self.assertEqual(tecnico["disponivel"], 0)
+
 
 if __name__ == "__main__":
     unittest.main()

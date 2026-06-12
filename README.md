@@ -66,7 +66,11 @@ O sistema irá atribuir tickets automaticamente com base em:
 
 * competências do técnico
 * carga de trabalho atual
-* disponibilidade
+* disponibilidade como prioridade
+
+Se não existir técnico disponível com a competência necessária, o sistema
+atribui o ticket ao técnico ativo com essa competência e menor carga de
+trabalho.
 
 ## Estrutura inicial do projeto
 
@@ -206,7 +210,8 @@ Testes implementados:
 
 * técnico com competência é escolhido
 * técnico com menor carga é escolhido
-* sem candidatos retorna `None`
+* sem técnico com a competência necessária retorna `None`
+* sem técnicos disponíveis escolhe técnico ativo com menor carga
 
 Comando para executar os testes:
 
