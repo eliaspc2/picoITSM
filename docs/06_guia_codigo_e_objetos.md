@@ -44,6 +44,10 @@ picoITSM/
 | `docs/04_diagrama_classes.md` | Mostra a organização das classes e a relação entre menus, serviços, repositórios e modelos. |
 | `docs/05_repositorio_e_scaffold.md` | Explica a estrutura inicial do projeto e o repositório Git/GitHub. |
 | `docs/06_guia_codigo_e_objetos.md` | Este documento. Explica ficheiros, classes, funções, métodos e parâmetros públicos. |
+| `docs/07_analise_vulnerabilidades.md` | Identifica riscos de segurança e medidas aplicadas. |
+| `docs/08_manual_instalacao_utilizacao.md` | Explica instalação, execução, utilizadores de teste e utilização da aplicação. |
+| `docs/09_otimizacoes.md` | Justifica as principais otimizações aplicadas no projeto. |
+| `docs/10_guiao_defesa.md` | Define uma ordem recomendada para apresentação e defesa do projeto. |
 | `src/main.py` | Ponto de entrada da aplicação. Cria a base de dados, carrega a cache, faz login e abre o menu principal. |
 | `src/database/db_connection.py` | Centraliza a abertura e fecho de ligações à base de dados SQLite. |
 | `src/database/init_db.py` | Cria as tabelas necessárias caso ainda não existam. |

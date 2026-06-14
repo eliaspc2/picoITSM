@@ -79,11 +79,19 @@ picoITSM/
 │
 ├── docs/
 ├── database/
+├── logs/
 ├── src/
+│   ├── database/
+│   ├── menus/
+│   ├── models/
+│   ├── repositories/
+│   ├── services/
+│   ├── tests/
+│   ├── utils/
 │   └── main.py
 │
 ├── README.md
-└── requirements.txt
+└── Proposta de Projeto - 10790.pdf
 ```
 
 # Estado por Entrega
@@ -335,17 +343,17 @@ Estado da entrega: concluída.
 
 ## Entrega 6 - Otimização, documentação e defesa
 
-Entrega ainda em desenvolvimento.
+Na Entrega 6 ficou preparada a versão final do projeto, com documentação de
+utilização, otimizações justificadas e guião de defesa.
 
-Já existe:
+Ficou pronto:
 
-* Documentação inicial em `README.md`
-* Documentação de requisitos e diagramas em `docs/`
-* Proposta do projeto no repositório
+* Otimizações aplicadas e justificadas em `docs/09_otimizacoes.md`
+* Documentação técnica completa em `README.md` e `docs/`
+* Manual de instalação e utilização em `docs/08_manual_instalacao_utilizacao.md`
+* Guião de apresentação e defesa em `docs/10_guiao_defesa.md`
+* Versão final do código
+* Testes automatizados validados
+* Limitações conhecidas documentadas
 
-Previsto:
-
-* Otimizações finais
-* Documentação técnica completa
-* Manual de instalação e utilização
-* Preparação da apresentação final
+Estado da entrega: concluída.
